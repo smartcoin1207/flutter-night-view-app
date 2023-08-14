@@ -9,18 +9,18 @@ import 'package:nightview/widgets/login_registration_button.dart';
 import 'package:nightview/widgets/login_registration_layout.dart';
 import 'package:provider/provider.dart';
 
-class LocationPermissionAlwaysScreen extends StatefulWidget {
+class LocationPermissionWhileInUseScreen extends StatefulWidget {
   static const id = 'location_permission_always_screen';
 
-  const LocationPermissionAlwaysScreen({super.key});
+  const LocationPermissionWhileInUseScreen({super.key});
 
   @override
-  State<LocationPermissionAlwaysScreen> createState() =>
-      _LocationPermissionAlwaysScreenState();
+  State<LocationPermissionWhileInUseScreen> createState() =>
+      _LocationPermissionWhileInUseScreen();
 }
 
-class _LocationPermissionAlwaysScreenState
-    extends State<LocationPermissionAlwaysScreen> with WidgetsBindingObserver {
+class _LocationPermissionWhileInUseScreen
+    extends State<LocationPermissionWhileInUseScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -55,7 +55,7 @@ class _LocationPermissionAlwaysScreenState
   void checkPermission() {
     Provider.of<GlobalProvider>(context, listen: false)
         .locationHelper
-        .hasPermissionAlways
+        .hasPermissionWhileInUse
         .then((hasPermission) {
       if (hasPermission) {
         Navigator.of(context).pushReplacementNamed(LocationPermissionCheckerScreen.id);

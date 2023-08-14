@@ -3,7 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/models/location_helper.dart';
 import 'package:nightview/providers/global_provider.dart';
-import 'package:nightview/screens/location_permission/location_permission_always_screen.dart';
+import 'package:nightview/screens/location_permission/location_permission_whileinuse_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_precise_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_service_screen.dart';
 import 'package:nightview/screens/main_screen.dart';
@@ -31,7 +31,7 @@ class _LocationPermissionCheckerScreenState
           Provider.of<GlobalProvider>(context, listen: false).locationHelper;
 
       if (await locationHelper.serviceEnabled) {
-        if (await locationHelper.hasPermissionAlways) {
+        if (await locationHelper.hasPermissionWhileInUse) {
           if (await locationHelper.hasPermissionPrecise) {
             locationHelper.activateBackgroundLocation();
             Provider.of<GlobalProvider>(context, listen: false).userDataHelper
@@ -43,7 +43,7 @@ class _LocationPermissionCheckerScreenState
             Navigator.of(context).pushReplacementNamed(LocationPermissionPreciseScreen.id);
           }
         } else {
-          Navigator.of(context).pushReplacementNamed(LocationPermissionAlwaysScreen.id);
+          Navigator.of(context).pushReplacementNamed(LocationPermissionWhileInUseScreen.id);
         }
       } else {
         Navigator.of(context).pushReplacementNamed(LocationPermissionServiceScreen.id);

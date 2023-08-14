@@ -5,7 +5,7 @@ import 'package:nightview/firebase_options.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/providers/login_registration_provider.dart';
 import 'package:nightview/providers/main_navigation_provider.dart';
-import 'package:nightview/screens/location_permission/location_permission_always_screen.dart';
+import 'package:nightview/screens/location_permission/location_permission_whileinuse_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_checker_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_precise_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_service_screen.dart';
@@ -89,8 +89,8 @@ class NightViewApp extends StatelessWidget {
           WaitingForLoginScreen.id: (context) => const WaitingForLoginScreen(),
           NightMapMainOfferScreen.id: (context) =>
               const NightMapMainOfferScreen(),
-          LocationPermissionAlwaysScreen.id: (context) =>
-              const LocationPermissionAlwaysScreen(),
+          LocationPermissionWhileInUseScreen.id: (context) =>
+              const LocationPermissionWhileInUseScreen(),
           LocationPermissionPreciseScreen.id: (context) =>
               const LocationPermissionPreciseScreen(),
           LocationPermissionServiceScreen.id: (context) =>

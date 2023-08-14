@@ -115,7 +115,7 @@ class _NightMapState extends State<NightMap> {
       minHeight: 0,
       maxHeight: club.offerType == OfferType.none ? 0.3 : 1,
       headerHeight: 200.0,
-      isSafeArea: true,
+      isSafeArea: false,
       bottomSheetColor: Colors.transparent,
       decoration: BoxDecoration(
         color: Colors.black,

@@ -23,11 +23,11 @@ class LocationHelper {
     return _serviceEnabled;
   }
 
-  Future<bool> get hasPermissionAlways async {
+  Future<bool> get hasPermissionWhileInUse async {
     _permission = await Geolocator.checkPermission();
-    return _permission == LocationPermission.always;
+    return (_permission == LocationPermission.whileInUse) || (_permission == LocationPermission.always);
   }
-
+  
   Future<bool> get hasPermissionPrecise async {
     _accuracy = await Geolocator.getLocationAccuracy();
     return _accuracy == LocationAccuracyStatus.precise;

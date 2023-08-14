@@ -5,7 +5,7 @@ import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/providers/login_registration_provider.dart';
-import 'package:nightview/screens/location_permission/location_permission_always_screen.dart';
+import 'package:nightview/screens/location_permission/location_permission_checker_screen.dart';
 import 'package:nightview/widgets/big_checkbox.dart';
 import 'package:nightview/widgets/login_registration_confirm_button.dart';
 import 'package:nightview/widgets/login_registration_layout.dart';
@@ -104,7 +104,7 @@ class _LoginMainScreenState extends State<LoginMainScreen> {
                       mail: mailPhoneInputController.text,
                       password: passwordInputController.text)) {
                     Navigator.of(context).pushNamedAndRemoveUntil(
-                      LocationPermissionAlwaysScreen.id,
+                      LocationPermissionCheckerScreen.id,
                       (route) => false,
                     );
 
