@@ -67,14 +67,14 @@ class _LocationPermissionWhileInUseScreen
   Widget build(BuildContext context) {
     return LoginRegistrationLayout(
       title: Text(
-        'Tillad altid lokation',
+        'Tillad lokation mens du bruger appen',
         textAlign: TextAlign.center,
         style: kTextStyleH1,
       ),
       content: Column(
         children: [
           Text(
-            'For at få den bedste oplevelse på NightView, er det nødvendigt at appen altid har adgang til din lokation.',
+            'For at få den bedste oplevelse på NightView, er det nødvendigt at appen har adgang til din lokation mens du bruger appen (det gælder også, når du har appen åben i baggrunden).',
             textAlign: TextAlign.center,
             style: kTextStyleP1,
           ),
@@ -110,7 +110,7 @@ class _LocationPermissionWhileInUseScreen
     }
 
     if (Platform.isIOS) {
-      return 'Åbn indstillinger';
+      return 'Åbn app-indstillinger';
     }
 
     return 'IKKE GYLDIGT STYRESYSTEM';
@@ -120,11 +120,11 @@ class _LocationPermissionWhileInUseScreen
   String get guideText {
 
     if (Platform.isAndroid) {
-      return '> Åbn app-indstillinger\n> Tilladelser\n> Lokation\n> Tillad altid';
+      return '> Åbn app-indstillinger\n> Tilladelser\n> Lokation\n> Tillad kun, mens appen er i brug';
     }
 
     if (Platform.isIOS) {
-      return '> Åbn indstillinger\n> NightView\n> Lokation\n> Tillad altid';
+      return '> Åbn app-indstillinger\n> Lokalitet\n> Ved brug af appen';
     }
 
     return 'IKKE GYLDIGT STYRESYSTEM';

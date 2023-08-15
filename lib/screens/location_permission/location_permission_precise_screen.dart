@@ -69,7 +69,7 @@ class _LocationPermissionPreciseScreenState
       content: Column(
         children: [
           Text(
-            'For at levere den bedste oplevelse for NightViews brugere, er det nødvendigt at appen har tilladelse til telefonens præcise position.',
+            'For at levere den bedste oplevelse for NightViews brugere, er det nødvendigt at appen har adgang til telefonens præcise position.',
             textAlign: TextAlign.center,
             style: kTextStyleP1,
           ),
@@ -105,7 +105,7 @@ class _LocationPermissionPreciseScreenState
     }
 
     if (Platform.isIOS) {
-      return 'Åbn indstillinger';
+      return 'Åbn app-indstillinger';
     }
 
     return 'IKKE GYLDIGT STYRESYSTEM';
@@ -119,7 +119,7 @@ class _LocationPermissionPreciseScreenState
     }
 
     if (Platform.isIOS) {
-      return '> Åbn indstillinger\n> NightView\n> Lokation\n> Brug præcis lokation';
+      return '> Åbn app-indstillinger\n> Lokalitet\n> Præcis lokalitet';
     }
 
     return 'IKKE GYLDIGT STYRESYSTEM';
