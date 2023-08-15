@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/models/location_helper.dart';
 import 'package:nightview/providers/global_provider.dart';
+import 'package:nightview/screens/location_permission/location_permission_always_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_whileinuse_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_precise_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_service_screen.dart';
@@ -30,24 +33,49 @@ class _LocationPermissionCheckerScreenState
       LocationHelper locationHelper =
           Provider.of<GlobalProvider>(context, listen: false).locationHelper;
 
-      if (await locationHelper.serviceEnabled) {
-        if (await locationHelper.hasPermissionWhileInUse) {
-          if (await locationHelper.hasPermissionPrecise) {
-            locationHelper.activateBackgroundLocation();
-            Provider.of<GlobalProvider>(context, listen: false).userDataHelper
-                .currentUserData
-                .answeredStatusToday()
-                ? Navigator.of(context).pushReplacementNamed(MainScreen.id)
-                : Navigator.of(context).pushReplacementNamed(SwipeMainScreen.id);
+      if (Platform.isAndroid) {
+        if (await locationHelper.serviceEnabled) {
+          if (await locationHelper.hasPermissionAlways) {
+            if (await locationHelper.hasPermissionPrecise) {
+              await locationHelper.activateBackgroundLocation();
+              Provider.of<GlobalProvider>(context, listen: false).userDataHelper
+                  .currentUserData
+                  .answeredStatusToday()
+                  ? Navigator.of(context).pushReplacementNamed(MainScreen.id)
+                  : Navigator.of(context).pushReplacementNamed(SwipeMainScreen.id);
+            } else {
+              Navigator.of(context).pushReplacementNamed(LocationPermissionPreciseScreen.id);
+            }
           } else {
-            Navigator.of(context).pushReplacementNamed(LocationPermissionPreciseScreen.id);
+            Navigator.of(context).pushReplacementNamed(LocationPermissionAlwaysScreen.id);
           }
         } else {
-          Navigator.of(context).pushReplacementNamed(LocationPermissionWhileInUseScreen.id);
+          Navigator.of(context).pushReplacementNamed(LocationPermissionServiceScreen.id);
         }
-      } else {
-        Navigator.of(context).pushReplacementNamed(LocationPermissionServiceScreen.id);
       }
+
+      if (Platform.isIOS) {
+        if (await locationHelper.serviceEnabled) {
+          if (await locationHelper.hasPermissionWhileInUse) {
+            if (await locationHelper.hasPermissionPrecise) {
+              await locationHelper.activateBackgroundLocation();
+              Provider.of<GlobalProvider>(context, listen: false).userDataHelper
+                  .currentUserData
+                  .answeredStatusToday()
+                  ? Navigator.of(context).pushReplacementNamed(MainScreen.id)
+                  : Navigator.of(context).pushReplacementNamed(SwipeMainScreen.id);
+            } else {
+              Navigator.of(context).pushReplacementNamed(LocationPermissionPreciseScreen.id);
+            }
+          } else {
+            Navigator.of(context).pushReplacementNamed(LocationPermissionWhileInUseScreen.id);
+          }
+        } else {
+          Navigator.of(context).pushReplacementNamed(LocationPermissionServiceScreen.id);
+        }
+      }
+
+
     });
   }
 

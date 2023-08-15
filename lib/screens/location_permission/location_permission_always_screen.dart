@@ -9,18 +9,18 @@ import 'package:nightview/widgets/login_registration_button.dart';
 import 'package:nightview/widgets/login_registration_layout.dart';
 import 'package:provider/provider.dart';
 
-class LocationPermissionWhileInUseScreen extends StatefulWidget {
-  static const id = 'location_permission_whileinuse_screen';
+class LocationPermissionAlwaysScreen extends StatefulWidget {
+  static const id = 'location_permission_always_screen';
 
-  const LocationPermissionWhileInUseScreen({super.key});
+  const LocationPermissionAlwaysScreen({super.key});
 
   @override
-  State<LocationPermissionWhileInUseScreen> createState() =>
-      _LocationPermissionWhileInUseScreen();
+  State<LocationPermissionAlwaysScreen> createState() =>
+      _LocationPermissionAlwaysScreen();
 }
 
-class _LocationPermissionWhileInUseScreen
-    extends State<LocationPermissionWhileInUseScreen> with WidgetsBindingObserver {
+class _LocationPermissionAlwaysScreen
+    extends State<LocationPermissionAlwaysScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -55,7 +55,7 @@ class _LocationPermissionWhileInUseScreen
   void checkPermission() {
     Provider.of<GlobalProvider>(context, listen: false)
         .locationHelper
-        .hasPermissionWhileInUse
+        .hasPermissionAlways
         .then((hasPermission) {
       if (hasPermission) {
         Navigator.of(context).pushReplacementNamed(LocationPermissionCheckerScreen.id);
@@ -67,14 +67,14 @@ class _LocationPermissionWhileInUseScreen
   Widget build(BuildContext context) {
     return LoginRegistrationLayout(
       title: Text(
-        'Tillad lokation mens du bruger appen',
+        'Tillad lokation altid',
         textAlign: TextAlign.center,
         style: kTextStyleH1,
       ),
       content: Column(
         children: [
           Text(
-            'For at få den bedste oplevelse på NightView, er det nødvendigt at appen har adgang til din lokation mens du bruger appen (det gælder også, når du har appen åben i baggrunden).',
+            'For at få den bedste oplevelse på NightView, er det nødvendigt at appen altid har adgang til din lokation.',
             textAlign: TextAlign.center,
             style: kTextStyleP1,
           ),
@@ -105,7 +105,7 @@ class _LocationPermissionWhileInUseScreen
 
   String get buttonText {
 
-    // KAN KUN VÆRE IOS
+    // KAN KUN VÆRE ANDROID
 
     if (Platform.isAndroid) {
       return 'Åbn app-indstillinger';
@@ -121,10 +121,10 @@ class _LocationPermissionWhileInUseScreen
 
   String get guideText {
 
-    // KAN KUN VÆRE IOS
+    // KAN KUN VÆRE ANDROID
 
     if (Platform.isAndroid) {
-      return '> Åbn app-indstillinger\n> Tilladelser\n> Lokation\n> Tillad kun, mens appen er i brug';
+      return '> Åbn app-indstillinger\n> Tilladelser\n> Lokation\n> Tillad altid';
     }
 
     if (Platform.isIOS) {

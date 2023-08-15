@@ -14,9 +14,7 @@ class LocationHelper {
   GeneralAsyncCallback<Position> onPositionUpdate;
   loc.Location locationService = loc.Location();
 
-
   LocationHelper({required this.onPositionUpdate});
-
 
   Future<bool> get serviceEnabled async {
     _serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -25,27 +23,39 @@ class LocationHelper {
 
   Future<bool> get hasPermissionWhileInUse async {
     _permission = await Geolocator.checkPermission();
-    return (_permission == LocationPermission.whileInUse) || (_permission == LocationPermission.always);
+    return (_permission == LocationPermission.whileInUse) ||
+        (_permission == LocationPermission.always);
   }
-  
+
+  Future<bool> get hasPermissionAlways async {
+    _permission = await Geolocator.checkPermission();
+    return _permission == LocationPermission.always;
+  }
+
   Future<bool> get hasPermissionPrecise async {
     _accuracy = await Geolocator.getLocationAccuracy();
     return _accuracy == LocationAccuracyStatus.precise;
   }
 
   Future<Position> getCurrentPosition() async {
-    return Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+    return Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best);
   }
 
-  void activateBackgroundLocation() {
-    locationService.enableBackgroundMode();
+  Future<void> activateBackgroundLocation() async {
+    bool enabled = await locationService.isBackgroundModeEnabled();
+
+    if (!enabled) {
+      Future.delayed(
+        Duration(seconds: 5),
+        () => locationService.enableBackgroundMode(),
+      );
+    }
   }
 
   Future<loc.LocationData> getBackgroundLocation() async {
-
     loc.LocationData location = await locationService.getLocation();
     return location;
-
   }
 
   Future<void> requestLocationPermission() async {
