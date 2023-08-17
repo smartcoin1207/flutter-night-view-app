@@ -31,7 +31,27 @@ class GlobalProvider extends ChangeNotifier {
       },
     );
     locationHelper = LocationHelper(
-      onPositionUpdate: (location) async {},
+      onPositionUpdate: (location) async {
+
+        print(userDataHelper.isLoggedIn());
+
+        if (userDataHelper.isLoggedIn()) {
+
+          double? lat = location?.latitude;
+          double? lon = location?.longitude;
+
+          print(lat);
+          print(lon);
+
+          if (lat == null || lon == null) {
+            return;
+          }
+
+          await updatePositionAndEvaluateVisitors(lat: lat, lon: lon);
+
+        }
+
+      },
     );
     backgroundServiceHelper = BackgroundServiceHelper(
       onReceive: (taskId) async {

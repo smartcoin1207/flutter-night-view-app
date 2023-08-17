@@ -11,10 +11,25 @@ class LocationHelper {
   LocationPermission _permission = LocationPermission.unableToDetermine;
   LocationAccuracyStatus _accuracy = LocationAccuracyStatus.unknown;
   bool _serviceEnabled = false;
-  GeneralAsyncCallback<Position> onPositionUpdate;
+  GeneralAsyncCallback<loc.LocationData> onPositionUpdate;
   loc.Location locationService = loc.Location();
 
-  LocationHelper({required this.onPositionUpdate});
+  LocationHelper({required this.onPositionUpdate}) {
+
+    DateTime lastUpdate = DateTime.now();
+
+    locationService.onLocationChanged.listen((loc.LocationData location) {
+
+      DateTime fiveMinutesAgo = DateTime.now().subtract(Duration(minutes: 5));
+
+      if (fiveMinutesAgo.isAfter(lastUpdate)) {
+        lastUpdate = DateTime.now();
+        onPositionUpdate(location);
+      }
+
+    });
+
+  }
 
   Future<bool> get serviceEnabled async {
     _serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -54,7 +69,9 @@ class LocationHelper {
   }
 
   Future<loc.LocationData> getBackgroundLocation() async {
+    print('get background location');
     loc.LocationData location = await locationService.getLocation();
+    print('got background location');
     return location;
   }
 
