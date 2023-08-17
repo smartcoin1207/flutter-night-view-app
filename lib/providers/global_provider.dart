@@ -1,10 +1,8 @@
 import 'package:appinio_swiper/appinio_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:location/location.dart' as loc;
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/enums.dart';
-import 'package:nightview/models/background_service_helper.dart';
 import 'package:nightview/models/club_data.dart';
 import 'package:nightview/models/club_data_helper.dart';
 import 'package:nightview/models/location_helper.dart';
@@ -40,9 +38,6 @@ class GlobalProvider extends ChangeNotifier {
           double? lat = location?.latitude;
           double? lon = location?.longitude;
 
-          print(lat);
-          print(lon);
-
           if (lat == null || lon == null) {
             return;
           }
@@ -52,33 +47,12 @@ class GlobalProvider extends ChangeNotifier {
         }
 
       },
-    );
-    backgroundServiceHelper = BackgroundServiceHelper(
-      onReceive: (taskId) async {
-
-        if (userDataHelper.isLoggedIn()) {
-          loc.LocationData currentLocation =
-              await locationHelper.getBackgroundLocation();
-
-          double? lat = currentLocation.latitude;
-          double? lon = currentLocation.longitude;
-
-          if (lat == null || lon == null) {
-            return;
-          }
-
-          await updatePositionAndEvaluateVisitors(lat: lat, lon: lon);
-
-        }
-      },
-      onTimeout: (taskId) async {},
     );
   }
 
   late ClubDataHelper clubDataHelper;
   late UserDataHelper userDataHelper;
   late LocationHelper locationHelper;
-  late BackgroundServiceHelper backgroundServiceHelper;
 
   MainOfferRedemptionsHelper mainOfferRedemptionsHelper =
       MainOfferRedemptionsHelper();
