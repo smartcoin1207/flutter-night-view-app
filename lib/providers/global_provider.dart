@@ -136,4 +136,21 @@ class GlobalProvider extends ChangeNotifier {
 
   }
 
+  Future<bool> deleteAllUserData() async {
+
+    String userIdToDelete = userDataHelper.currentUserId;
+
+    try {
+      await userDataHelper.deleteDataAssociatedTo(userIdToDelete);
+      await clubDataHelper.deleteDataAssociatedTo(userIdToDelete);
+      await mainOfferRedemptionsHelper.deleteDataAssociatedTo(userIdToDelete);
+      await userDataHelper.deleteCurrentUser();
+    } catch (e) {
+      print(e);
+      return false;
+    }
+    return true;
+
+  }
+
 }

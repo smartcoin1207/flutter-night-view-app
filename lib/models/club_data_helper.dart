@@ -115,4 +115,27 @@ class ClubDataHelper {
         return null;
     }
   }
+
+  Future<void> deleteDataAssociatedTo(String userId) async {
+
+    QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore.collection('club_data').get();
+
+    for (QueryDocumentSnapshot<Map<String, dynamic>> club in snapshot.docs) {
+      final String clubId = club.id;
+      final favoritesData = club.get('favorites');
+
+      if (!favoritesData.contains(userId)) {
+        continue;
+      }
+
+      favoritesData.remove(userId);
+
+      _firestore.collection('club_data').doc(clubId).update({
+        'favorites': favoritesData,
+      });
+
+    }
+
+  }
+
 }

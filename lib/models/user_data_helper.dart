@@ -204,4 +204,16 @@ class UserDataHelper {
 
   }
 
+  Future<void> deleteDataAssociatedTo(String userId) async {
+
+    await _firestore.collection('user_data').doc(userId).delete();
+
+  }
+
+  Future<void> deleteCurrentUser() async {
+
+    await _auth.currentUser?.delete();
+
+  }
+
 }
