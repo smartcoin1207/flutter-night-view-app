@@ -14,10 +14,12 @@ class RegistrationConfirmationScreen extends StatefulWidget {
   const RegistrationConfirmationScreen({super.key});
 
   @override
-  State<RegistrationConfirmationScreen> createState() => _RegistrationConfirmationScreenState();
+  State<RegistrationConfirmationScreen> createState() =>
+      _RegistrationConfirmationScreenState();
 }
 
-class _RegistrationConfirmationScreenState extends State<RegistrationConfirmationScreen> {
+class _RegistrationConfirmationScreenState
+    extends State<RegistrationConfirmationScreen> {
   final _formKey = GlobalKey<FormState>();
 
   bool inputIsFilled = false;
@@ -28,10 +30,40 @@ class _RegistrationConfirmationScreenState extends State<RegistrationConfirmatio
       builder: (context, provider, child) => Form(
         key: _formKey,
         child: LoginRegistrationLayout(
-          title: Text(
-            'Du er blevet tilsendt en bekræftelseskode\n\nSkriv koden for at fortsætte',
-            textAlign: TextAlign.center,
-            style: kTextStyleH2,
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Du er blevet tilsendt en bekræftelseskode på mail:',
+                textAlign: TextAlign.center,
+                style: kTextStyleH2,
+              ),
+              SizedBox(
+                height: kSmallSpacerValue,
+              ),
+              Text(
+                provider.mail,
+                textAlign: TextAlign.center,
+                style: kTextStyleP2,
+              ),
+              SizedBox(
+                height: kNormalSpacerValue * 2,
+              ),
+              Text(
+                'Skriv koden for at fortsætte',
+                textAlign: TextAlign.center,
+                style: kTextStyleH2,
+              ),
+              SizedBox(
+                height: kSmallSpacerValue,
+              ),
+              Text(
+                'Tjek din spam mappe, hvis den ikke dukker op',
+                textAlign: TextAlign.center,
+                style: kTextStyleP2,
+              ),
+            ],
           ),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -70,7 +102,7 @@ class _RegistrationConfirmationScreenState extends State<RegistrationConfirmatio
                   }
                   if (valid) {
                     Navigator.of(context)
-                      .pushReplacementNamed(RegistrationPasswordScreen.id);
+                        .pushReplacementNamed(RegistrationPasswordScreen.id);
                   }
                 },
               ),

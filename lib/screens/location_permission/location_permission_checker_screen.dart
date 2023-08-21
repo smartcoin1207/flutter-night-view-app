@@ -35,9 +35,12 @@ class _LocationPermissionCheckerScreenState
 
       if (Platform.isAndroid) {
         if (await locationHelper.serviceEnabled) {
-          if (await locationHelper.hasPermissionAlways) {
-            if (await locationHelper.hasPermissionPrecise) {
-              await locationHelper.activateBackgroundLocation();
+          if (await locationHelper.hasPermissionAlways || Provider.of<GlobalProvider>(context, listen: false).locationOptOut) {
+            if (await locationHelper.hasPermissionPrecise || Provider.of<GlobalProvider>(context, listen: false).locationOptOut) {
+              if (!Provider.of<GlobalProvider>(context, listen: false).locationOptOut) {
+                await locationHelper.activateBackgroundLocation();
+                locationHelper.startLocationService();
+              }
               Provider.of<GlobalProvider>(context, listen: false).userDataHelper
                   .currentUserData
                   .answeredStatusToday()
@@ -59,6 +62,7 @@ class _LocationPermissionCheckerScreenState
           if (await locationHelper.hasPermissionWhileInUse) {
             if (await locationHelper.hasPermissionPrecise) {
               await locationHelper.activateBackgroundLocation();
+              locationHelper.startLocationService();
               Provider.of<GlobalProvider>(context, listen: false).userDataHelper
                   .currentUserData
                   .answeredStatusToday()

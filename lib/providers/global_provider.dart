@@ -31,8 +31,6 @@ class GlobalProvider extends ChangeNotifier {
     locationHelper = LocationHelper(
       onPositionUpdate: (location) async {
 
-        print(userDataHelper.isLoggedIn());
-
         if (userDataHelper.isLoggedIn()) {
 
           double? lat = location?.latitude;
@@ -64,12 +62,14 @@ class GlobalProvider extends ChangeNotifier {
   PartyStatus _partyStatusLocal = PartyStatus.unsure;
   PermissionState _permissionState = PermissionState.noPermissions;
   int _partyCount = 0;
+  bool _locationOptOut = false;
 
   ClubData get chosenClub => _chosenClub!;
   bool get chosenClubFavoriteLocal => _chosenClubFavoriteLocal;
   PartyStatus get partyStatusLocal => _partyStatusLocal;
   PermissionState get permissionState => _permissionState;
   int get partyCount => _partyCount;
+  bool get locationOptOut => _locationOptOut;
 
   bool get chosenClubFavorite {
     String userId = userDataHelper.currentUserId;
@@ -114,6 +114,11 @@ class GlobalProvider extends ChangeNotifier {
 
   void setPermissionState(PermissionState newValue) {
     _permissionState = newValue;
+    notifyListeners();
+  }
+
+  void setLocationOptOut(bool optOut) {
+    _locationOptOut = optOut;
     notifyListeners();
   }
 

@@ -7,6 +7,7 @@ import 'package:nightview/screens/login_registration/login_registration_option_s
 import 'package:nightview/screens/option_menu/bottom_sheet_status_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SideSheetMainScreen extends StatefulWidget {
   const SideSheetMainScreen({super.key});
@@ -70,6 +71,15 @@ class _SideSheetMainScreenState extends State<SideSheetMainScreen> {
             ),
             Column(
               children: [
+                ListTile(
+                  title: Text('Privatlivspolitik'),
+                  leading: FaIcon(
+                    FontAwesomeIcons.lock,
+                  ),
+                  onTap: () {
+                    launchUrl(Uri.parse('https://nightview.dk/privatlivspolitik'));
+                  },
+                ),
                 ListTile(
                   title: Text('Slet bruger'),
                   leading: FaIcon(

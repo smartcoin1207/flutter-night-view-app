@@ -58,7 +58,8 @@ class _LocationPermissionAlwaysScreen
         .hasPermissionAlways
         .then((hasPermission) {
       if (hasPermission) {
-        Navigator.of(context).pushReplacementNamed(LocationPermissionCheckerScreen.id);
+        Navigator.of(context)
+            .pushReplacementNamed(LocationPermissionCheckerScreen.id);
       }
     });
   }
@@ -98,13 +99,19 @@ class _LocationPermissionAlwaysScreen
                   .openAppSettings();
             },
           ),
+          // TextButton(
+          //   onPressed: () {},
+          //   child: Text(
+          //     'Vælg fra',
+          //     style: TextStyle(color: Colors.grey),
+          //   ),
+          // )
         ],
       ),
     );
   }
 
   String get buttonText {
-
     // KAN KUN VÆRE ANDROID
 
     if (Platform.isAndroid) {
@@ -116,11 +123,9 @@ class _LocationPermissionAlwaysScreen
     }
 
     return 'IKKE GYLDIGT STYRESYSTEM';
-
   }
 
   String get guideText {
-
     // KAN KUN VÆRE ANDROID
 
     if (Platform.isAndroid) {
@@ -132,7 +137,5 @@ class _LocationPermissionAlwaysScreen
     }
 
     return 'IKKE GYLDIGT STYRESYSTEM';
-
   }
-
 }

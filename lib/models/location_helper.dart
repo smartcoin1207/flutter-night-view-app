@@ -14,22 +14,7 @@ class LocationHelper {
   GeneralAsyncCallback<loc.LocationData> onPositionUpdate;
   loc.Location locationService = loc.Location();
 
-  LocationHelper({required this.onPositionUpdate}) {
-
-    DateTime lastUpdate = DateTime.now();
-
-    locationService.onLocationChanged.listen((loc.LocationData location) {
-
-      DateTime fiveMinutesAgo = DateTime.now().subtract(Duration(minutes: 5));
-
-      if (fiveMinutesAgo.isAfter(lastUpdate)) {
-        lastUpdate = DateTime.now();
-        onPositionUpdate(location);
-      }
-
-    });
-
-  }
+  LocationHelper({required this.onPositionUpdate});
 
   Future<bool> get serviceEnabled async {
     _serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -61,17 +46,31 @@ class LocationHelper {
     bool enabled = await locationService.isBackgroundModeEnabled();
 
     if (!enabled) {
-      Future.delayed(
-        Duration(seconds: 5),
-        () => locationService.enableBackgroundMode(),
-      );
+      await locationService.enableBackgroundMode();
     }
   }
 
+  Future<void> startLocationService() async {
+    DateTime lastUpdate = DateTime.now();
+    List<loc.LocationData> recentLocations = [];
+
+    locationService.onLocationChanged.listen((loc.LocationData location) {
+
+      recentLocations.add(location);
+
+      DateTime fiveMinutesAgo = DateTime.now().subtract(Duration(minutes: 5));
+
+      if (fiveMinutesAgo.isAfter(lastUpdate)) {
+        loc.LocationData avgLocation = getAverageLocation(locations: recentLocations);
+        recentLocations = [];
+        lastUpdate = DateTime.now();
+        onPositionUpdate(avgLocation);
+      }
+    });
+  }
+
   Future<loc.LocationData> getBackgroundLocation() async {
-    print('get background location');
     loc.LocationData location = await locationService.getLocation();
-    print('got background location');
     return location;
   }
 
@@ -105,5 +104,31 @@ class LocationHelper {
     }
 
     return mt.PolygonUtil.containsLocation(userPoint, clubCorners, true);
+  }
+
+  loc.LocationData getAverageLocation({required List<loc.LocationData> locations}) {
+
+    double sumLat = 0;
+    double sumLon = 0;
+
+    for (loc.LocationData location in locations) {
+      sumLat += location.latitude ?? 0;
+      sumLon += location.longitude ?? 0;
+    }
+
+    double avgLat = sumLat / locations.length;
+    double avgLon = sumLon / locations.length;
+
+    loc.LocationData avgLocation = loc.LocationData.fromMap({
+      'latitude': avgLat,
+      'longitude': avgLon,
+    });
+
+    print(locations.length);
+    print(avgLocation.latitude);
+    print(avgLocation.longitude);
+
+    return avgLocation;
+
   }
 }
