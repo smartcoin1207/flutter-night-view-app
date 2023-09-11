@@ -16,8 +16,8 @@ class MainNavigationProvider extends ChangeNotifier {
       case PageName.nightMap:
         return 'NightMap';
 
-      case PageName.nightOffers:
-        return 'NightOffers';
+      // case PageName.nightOffers:
+      //   return 'NightOffers';
 
       case PageName.nightSocial:
         return 'NightSocial';
@@ -30,11 +30,11 @@ class MainNavigationProvider extends ChangeNotifier {
       case PageName.nightMap:
         return 0;
 
-      case PageName.nightOffers:
-        return 1;
+      // case PageName.nightOffers:
+      //   return 1;
 
       case PageName.nightSocial:
-        return 2;
+        return 1;
     }
   }
 
@@ -44,8 +44,8 @@ class MainNavigationProvider extends ChangeNotifier {
       case PageName.nightMap:
         return NightMapMainScreen();
 
-      case PageName.nightOffers:
-        return NightOffersMainScreen();
+      // case PageName.nightOffers:
+      //   return NightOffersMainScreen();
 
       case PageName.nightSocial:
         return NightSocialMainScreen();

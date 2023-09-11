@@ -1,6 +1,6 @@
 enum PageName {
   nightMap,
-  nightOffers,
+  // nightOffers,
   nightSocial,
 }
 

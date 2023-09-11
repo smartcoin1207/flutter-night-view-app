@@ -4,7 +4,7 @@ import 'package:modal_side_sheet/modal_side_sheet.dart';
 import 'package:nightview/constants/values.dart';
 import 'package:nightview/providers/main_navigation_provider.dart';
 import 'package:nightview/screens/option_menu/side_sheet_main_screen.dart';
-//import 'package:nightview/widgets/main_bottom_navigation_bar.dart';
+import 'package:nightview/widgets/main_bottom_navigation_bar.dart';
 import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
@@ -55,7 +55,7 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       body: Provider.of<MainNavigationProvider>(context).currentScreen,
-      //bottomNavigationBar: MainBottomNavigationBar(),
+      bottomNavigationBar: MainBottomNavigationBar(),
     );
   }
 }

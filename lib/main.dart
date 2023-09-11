@@ -93,7 +93,7 @@ class NightViewApp extends StatelessWidget {
           LocationPermissionWhileInUseScreen.id: (context) =>
               const LocationPermissionWhileInUseScreen(),
           LocationPermissionAlwaysScreen.id: (context) =>
-          const LocationPermissionAlwaysScreen(),
+              const LocationPermissionAlwaysScreen(),
           LocationPermissionPreciseScreen.id: (context) =>
               const LocationPermissionPreciseScreen(),
           LocationPermissionServiceScreen.id: (context) =>

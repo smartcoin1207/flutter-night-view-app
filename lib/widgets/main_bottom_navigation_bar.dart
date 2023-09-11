@@ -16,10 +16,10 @@ class MainBottomNavigationBar extends StatelessWidget {
           icon: Icon(Icons.pin_drop_sharp),
           label: 'MAP',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.percent_sharp),
-          label: 'OFFERS',
-        ),
+        // BottomNavigationBarItem(
+        //   icon: Icon(Icons.percent_sharp),
+        //   label: 'OFFERS',
+        // ),
         BottomNavigationBarItem(
           icon: Icon(Icons.people_alt_sharp),
           label: 'SOCIAL',
@@ -33,11 +33,11 @@ class MainBottomNavigationBar extends StatelessWidget {
             Provider.of<MainNavigationProvider>(context, listen: false).setScreen(newPage: PageName.nightMap);
             break;
 
-          case 1:
-            Provider.of<MainNavigationProvider>(context, listen: false).setScreen(newPage: PageName.nightOffers);
-            break;
+          // case 1:
+          //   Provider.of<MainNavigationProvider>(context, listen: false).setScreen(newPage: PageName.nightOffers);
+          //   break;
 
-          case 2:
+          case 1:
             Provider.of<MainNavigationProvider>(context, listen: false).setScreen(newPage: PageName.nightSocial);
             break;
 
