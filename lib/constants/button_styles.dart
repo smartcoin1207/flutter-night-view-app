@@ -27,3 +27,18 @@ const kTextFieldLookalikeButtonStyle = ButtonStyle(
     Size(double.maxFinite, 60.0),
   ),
 );
+
+const kTransparentButtonStyle = ButtonStyle(
+  shape: MaterialStatePropertyAll(
+    RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(
+        Radius.circular(kMainBorderRadius),
+      ),
+    ),
+  ),
+  side: MaterialStatePropertyAll(
+    BorderSide(color: Colors.white, width: kMainStrokeWidth),
+  ),
+  backgroundColor: MaterialStatePropertyAll(Colors.transparent),
+  foregroundColor: MaterialStatePropertyAll(Colors.white),
+);

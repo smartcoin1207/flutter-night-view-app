@@ -18,8 +18,9 @@ class _NightSocialMainScreenState extends State<NightSocialMainScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.all(kMainPadding),
+        Container(
+          padding: EdgeInsets.all(kBigPadding),
+          color: Colors.black,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -29,18 +30,16 @@ class _NightSocialMainScreenState extends State<NightSocialMainScreen> {
               ),
               Row(
                 children: [
-                  TextButton(
+                  IconButton(
                     onPressed: () {},
-                    child: FaIcon(
+                    icon: FaIcon(
                       FontAwesomeIcons.penToSquare,
-                      color: Colors.white,
                     ),
                   ),
-                  TextButton(
+                  IconButton(
                     onPressed: () {},
-                    child: FaIcon(
+                    icon: FaIcon(
                       FontAwesomeIcons.userPlus,
-                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -65,7 +64,7 @@ class _NightSocialMainScreenState extends State<NightSocialMainScreen> {
                 ),
               ),
               leading: CircleAvatar(
-                child: Image.asset('images/logo_icon.png'),
+                backgroundImage: AssetImage('images/user_pb.jpg'),
               ),
               title: Text('Gunnar'),
               subtitle: Text('Dig: Haha xd'),

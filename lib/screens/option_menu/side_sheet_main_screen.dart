@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/enums.dart';
+import 'package:nightview/constants/values.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/screens/login_registration/login_registration_option_screen.dart';
+import 'package:nightview/screens/my_profile/my_profile_main_screen.dart';
 import 'package:nightview/screens/option_menu/bottom_sheet_status_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,6 +54,22 @@ class _SideSheetMainScreenState extends State<SideSheetMainScreen> {
                   onTap: () {
                     Navigator.of(context).pop();
                   },
+                ),
+                ListTile(
+                  title: Text('Se profil'),
+                  leading: CircleAvatar(
+                    backgroundImage: AssetImage('images/user_pb.jpg'),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pushNamed(MyProfileMainScreen.id);
+                  },
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: kMainPadding),
+                  child: Divider(
+                    color: Colors.white,
+                    thickness: kMainStrokeWidth,
+                  ),
                 ),
                 ListTile(
                   title: Text('Skift status'),

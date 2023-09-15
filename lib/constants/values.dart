@@ -7,6 +7,7 @@ const kNormalSpacerValue = 20.0;
 const kSmallSpacerValue = 5.0;
 const kBottomSpacerValue = 160.0;
 const kSwipeBottomPadding = 50.0;
+const kBigPadding = 16.0;
 const kMainPadding = 8.0;
 const kSmallPadding = 4.0;
 const kCardPadding = 20.0;

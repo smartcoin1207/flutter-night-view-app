@@ -63,6 +63,7 @@ class GlobalProvider extends ChangeNotifier {
   PermissionState _permissionState = PermissionState.noPermissions;
   int _partyCount = 0;
   bool _locationOptOut = false;
+  bool _biographyChanged = false;
 
   ClubData get chosenClub => _chosenClub!;
   bool get chosenClubFavoriteLocal => _chosenClubFavoriteLocal;
@@ -70,6 +71,7 @@ class GlobalProvider extends ChangeNotifier {
   PermissionState get permissionState => _permissionState;
   int get partyCount => _partyCount;
   bool get locationOptOut => _locationOptOut;
+  bool get biographyChanged => _biographyChanged;
 
   bool get chosenClubFavorite {
     String userId = userDataHelper.currentUserId;
@@ -119,6 +121,11 @@ class GlobalProvider extends ChangeNotifier {
 
   void setLocationOptOut(bool optOut) {
     _locationOptOut = optOut;
+    notifyListeners();
+  }
+
+  void setBiographyChanged(bool newValue) {
+    _biographyChanged = newValue;
     notifyListeners();
   }
 

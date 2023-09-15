@@ -23,18 +23,15 @@ class _NightSocialConversationScreenState
   @override
   void initState() {
     for (int i = 0; i < 20; i++) {
-
       String m = "";
 
       for (int j = 0; j < i; j++) {
-
         m += j.toString();
         m += j.toString();
         m += j.toString();
         m += j.toString();
         m += j.toString();
         m += j.toString();
-
       }
 
       messages.add(
@@ -71,7 +68,7 @@ class _NightSocialConversationScreenState
                 child: Row(
                   children: [
                     CircleAvatar(
-                      child: Image.asset('images/logo_icon.png'),
+                      backgroundImage: AssetImage('images/user_pb.jpg'),
                     ),
                     SizedBox(
                       width: kNormalSpacerValue,
@@ -97,30 +94,47 @@ class _NightSocialConversationScreenState
                         ChatMessageData message = messages[index];
                         bool bySelf = message.sender == 'Max';
 
-                        return Align(
-                          alignment: bySelf ? Alignment.topRight : Alignment.topLeft,
-                          child: Container(
-                            padding: EdgeInsets.all(kMainPadding),
-                            constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.75,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                kMainBorderRadius,
-                              ),
-                              border: Border.all(
-                                width: kMainStrokeWidth,
-                                color: bySelf ? primaryColor : Colors.white,
+                        return Column(
+                          children: [
+                            Text(
+                              message.getReadableTimestamp(),
+                              style: kTextStyleP2.copyWith(
+                                color: Colors.grey,
                               ),
                             ),
-                            child: Text(
-                              message.message,
-                              softWrap: true,
-                              style: kTextStyleP1.copyWith(
-                                color: bySelf ? primaryColor : Colors.white,
+                            SizedBox(
+                              height: kNormalSpacerValue,
+                            ),
+                            Align(
+                              alignment: bySelf
+                                  ? Alignment.topRight
+                                  : Alignment.topLeft,
+                              child: Container(
+                                padding: EdgeInsets.all(kMainPadding),
+                                constraints: BoxConstraints(
+                                  minWidth: 40.0,
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width * 0.75,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                    kMainBorderRadius,
+                                  ),
+                                  border: Border.all(
+                                    width: kMainStrokeWidth,
+                                    color: bySelf ? primaryColor : Colors.white,
+                                  ),
+                                ),
+                                child: Text(
+                                  message.message,
+                                  softWrap: true,
+                                  style: kTextStyleP1.copyWith(
+                                    color: bySelf ? primaryColor : Colors.white,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         );
                       },
                       separatorBuilder: (context, index) => SizedBox(
