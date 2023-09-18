@@ -39,3 +39,9 @@ enum OfferType {
   alwaysActive,
   redeemable,
 }
+
+enum FriendRequestStatus {
+  pending,
+  accepted,
+  rejected,
+}

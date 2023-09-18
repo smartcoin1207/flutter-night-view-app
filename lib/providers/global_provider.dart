@@ -5,6 +5,7 @@ import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/enums.dart';
 import 'package:nightview/models/club_data.dart';
 import 'package:nightview/models/club_data_helper.dart';
+import 'package:nightview/models/friend_request_helper.dart';
 import 'package:nightview/models/location_helper.dart';
 import 'package:nightview/models/main_offer_redemptions_helper.dart';
 import 'package:nightview/models/user_data_helper.dart';
@@ -64,6 +65,8 @@ class GlobalProvider extends ChangeNotifier {
   int _partyCount = 0;
   bool _locationOptOut = false;
   bool _biographyChanged = false;
+  bool _friendRequestsLoaded = false;
+  bool _pendingFriendRequests = false;
 
   ClubData get chosenClub => _chosenClub!;
   bool get chosenClubFavoriteLocal => _chosenClubFavoriteLocal;
@@ -72,6 +75,8 @@ class GlobalProvider extends ChangeNotifier {
   int get partyCount => _partyCount;
   bool get locationOptOut => _locationOptOut;
   bool get biographyChanged => _biographyChanged;
+  bool get friendRequestsLoaded => _friendRequestsLoaded;
+  bool get pendingFriendRequests => _pendingFriendRequests;
 
   bool get chosenClubFavorite {
     String userId = userDataHelper.currentUserId;
@@ -129,6 +134,16 @@ class GlobalProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setFriendRequestsLoaded(bool newValue) {
+    _friendRequestsLoaded = newValue;
+    notifyListeners();
+  }
+
+  void setPendingFriendRequests(bool newValue) {
+    _pendingFriendRequests = newValue;
+    notifyListeners();
+  }
+
   Future<void> updatePositionAndEvaluateVisitors({required double lat, required double lon}) async {
 
     await userDataHelper.setCurrentUsersLastPosition(
@@ -151,6 +166,7 @@ class GlobalProvider extends ChangeNotifier {
       await clubDataHelper.deleteDataAssociatedTo(userIdToDelete);
       await mainOfferRedemptionsHelper.deleteDataAssociatedTo(userIdToDelete);
       await userDataHelper.deleteCurrentUser();
+      await FriendRequestHelper.deleteDataAssociatedTo(userIdToDelete);
     } catch (e) {
       print(e);
       return false;
