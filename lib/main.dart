@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nightview/firebase_options.dart';
+import 'package:nightview/models/search_friends_helper.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/providers/login_registration_provider.dart';
 import 'package:nightview/providers/main_navigation_provider.dart';
@@ -21,6 +22,7 @@ import 'package:nightview/screens/login_registration/registration_welcome_screen
 import 'package:nightview/screens/main_screen.dart';
 import 'package:nightview/screens/my_profile/my_profile_main_screen.dart';
 import 'package:nightview/screens/night_map/night_map_main_offer_screen.dart';
+import 'package:nightview/screens/night_social/find_new_friends_screen.dart';
 import 'package:nightview/screens/night_social/friend_requests_screen.dart';
 import 'package:nightview/screens/night_social/night_social_conversation_screen.dart';
 import 'package:nightview/screens/preferences/preferences_main_screen.dart';
@@ -53,6 +55,9 @@ class NightViewApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<LoginRegistrationProvider>(
           create: (_) => LoginRegistrationProvider(),
+        ),
+        ChangeNotifierProvider<SearchFriendsHelper>(
+          create: (_) => SearchFriendsHelper(),
         ),
       ],
       child: MaterialApp(
@@ -101,8 +106,8 @@ class NightViewApp extends StatelessWidget {
               const LocationPermissionServiceScreen(),
           LocationPermissionCheckerScreen.id: (context) =>
               const LocationPermissionCheckerScreen(),
-          FriendRequestsScreen.id: (context) =>
-              const FriendRequestsScreen(),
+          FriendRequestsScreen.id: (context) => const FriendRequestsScreen(),
+          FindNewFriendsScreen.id: (context) => const FindNewFriendsScreen(),
         },
       ),
     );

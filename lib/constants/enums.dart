@@ -45,3 +45,8 @@ enum FriendRequestStatus {
   accepted,
   rejected,
 }
+
+enum FriendFilterType {
+  exclude,
+  include
+}
