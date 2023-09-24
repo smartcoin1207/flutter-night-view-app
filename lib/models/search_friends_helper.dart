@@ -3,36 +3,69 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:nightview/models/friend_request_helper.dart';
+import 'package:nightview/models/friends_helper.dart';
 import 'package:nightview/models/user_data.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:provider/provider.dart';
 
 class SearchFriendsHelper extends ChangeNotifier {
 
+  static const Duration _searchDelay = Duration(seconds: 1);
+
   DateTime? _lastUpdate;
-  String? _searchString;
+  List<UserData> _searchedUsers = [];
+  bool _shouldSearch = false;
 
-  String? get searchString => _searchString;
+  List<UserData> get searchedUsers => _searchedUsers;
 
-  set searchString(String? value) {
-    _searchString = value;
+  set searchedUsers(List<UserData> value) {
+    _searchedUsers = value;
+    notifyListeners();
+  }
+
+  void reset() {
+    _lastUpdate = null;
+    _searchedUsers = [];
     notifyListeners();
   }
 
   void updateSearch(BuildContext context, String value) {
 
     _lastUpdate = DateTime.now();
+    _shouldSearch = true;
 
-    Future.delayed(Duration(seconds: 2), () {
+    if (value.isEmpty) {
+      searchedUsers = [];
+      _shouldSearch = false;
+      return;
+    }
+
+    Future.delayed(_searchDelay, () async {
       DateTime now = DateTime.now();
       Duration diff = now.difference(_lastUpdate!);
-      if (diff > Duration(seconds: 2)) {
-        searchString = value;
-        _getUsers(context, value).forEach((user) {
-          print('${user.firstName} ${user.lastName}');
+      if (diff > _searchDelay) {
+        List<UserData> friendFilteredUsers = await FriendsHelper.filterFriends(_getUsers(context, value));
+
+        Future.wait(friendFilteredUsers.map((user) async => await FriendRequestHelper.userHasRequest(user.id) ? null : user)).then((requestFilteredUsers) {
+
+          requestFilteredUsers.removeWhere((user) => user == null);
+          List<UserData> filteredUsers = List<UserData>.from(requestFilteredUsers);
+
+          if (_shouldSearch) {
+          searchedUsers = filteredUsers;
+          }
+          _shouldSearch = false;
         });
       }
     });
+
+  }
+
+  void removeFromSearch(String userId) {
+
+    _searchedUsers.removeWhere((user) => user.id == userId);
+    notifyListeners();
 
   }
 
@@ -41,6 +74,7 @@ class SearchFriendsHelper extends ChangeNotifier {
     Map<String, UserData> allUsers = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.userData;
 
     for (UserData user in allUsers.values) {
+
       String fullName = '${user.firstName.trim()} ${user.lastName.trim()}'.toLowerCase();
       if (fullName.contains(searchStr.toLowerCase().trim())) {
         users.add(user);

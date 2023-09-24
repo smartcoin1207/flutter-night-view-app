@@ -56,16 +56,32 @@ class FriendsHelper {
 
   }
 
-  // static Future<List<UserData>> filterFriends(List<UserData> users, {FriendFilterType filterType = FriendFilterType.exclude}) async {
-  //
-  //   List<UserData> notFriendUsers = [];
-  //
-  //   for (UserData user in users) {
-  //     bool friend = await isFriend(user.id);
-  //     bool addFriend = (TERNARY OPERATOR!)
-  //
-  //   }
-  //
-  // }
+  static Future<List<UserData>> filterFriends(List<UserData> users, {FriendFilterType filterType = FriendFilterType.exclude}) async {
+    final _auth = FirebaseAuth.instance;
+
+    if (_auth.currentUser == null) {
+      return [];
+    }
+
+    List<UserData> filteredUsers = [];
+
+    for (UserData user in users) {
+
+      if (user.id == _auth.currentUser!.uid) {
+        continue;
+      }
+
+      bool friend = await isFriend(user.id);
+      bool filterFriend = (filterType == FriendFilterType.include) ? friend : !friend;
+
+      if (filterFriend) {
+        filteredUsers.add(user);
+      }
+
+    }
+
+    return filteredUsers;
+
+  }
 
 }

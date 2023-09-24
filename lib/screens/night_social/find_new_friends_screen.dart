@@ -1,11 +1,12 @@
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/input_decorations.dart';
 import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
+import 'package:nightview/models/friend_request_helper.dart';
 import 'package:nightview/models/search_friends_helper.dart';
+import 'package:nightview/models/user_data.dart';
 import 'package:provider/provider.dart';
 
 class FindNewFriendsScreen extends StatefulWidget {
@@ -19,16 +20,25 @@ class FindNewFriendsScreen extends StatefulWidget {
 
 class _FindNewFriendsScreenState extends State<FindNewFriendsScreen> {
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<SearchFriendsHelper>(context, listen: false).reset();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               padding: EdgeInsets.all(kBigPadding),
               color: Colors.black,
+              width: double.maxFinite,
               child: Text(
                 'Find nye venner',
                 style: kTextStyleH1,
@@ -63,9 +73,44 @@ class _FindNewFriendsScreenState extends State<FindNewFriendsScreen> {
                 ],
               ),
             ),
-            Text(
-              Provider.of<SearchFriendsHelper>(context).searchString ??
-                  'Ikke noget',
+            Expanded(
+              child: ListView.separated(
+                  itemBuilder: (context, index) {
+                    UserData user = Provider.of<SearchFriendsHelper>(context)
+                        .searchedUsers[index];
+                    return ListTile(
+                      shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(kMainBorderRadius),
+                          side: BorderSide(
+                            width: kMainStrokeWidth,
+                            color: Colors.white,
+                          )),
+                      leading: CircleAvatar(
+                        backgroundImage: AssetImage('images/user_pb.jpg'),
+                      ),
+                      title: Text(
+                        '${user.firstName} ${user.lastName}',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: IconButton(
+                        icon: FaIcon(
+                          FontAwesomeIcons.userPlus,
+                        ),
+                        onPressed: () {
+                          FriendRequestHelper.sendFriendRequest(user.id);
+                          Provider.of<SearchFriendsHelper>(context, listen: false).removeFromSearch(user.id);
+                        },
+                      ),
+                    );
+                  },
+                  separatorBuilder: (context, index) => SizedBox(
+                        height: kSmallSpacerValue,
+                      ),
+                  itemCount: Provider.of<SearchFriendsHelper>(context)
+                      .searchedUsers
+                      .length),
             ),
           ],
         ),

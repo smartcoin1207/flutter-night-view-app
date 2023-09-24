@@ -7,8 +7,6 @@ class FriendRequestHelper {
   static final _firestore = FirebaseFirestore.instance;
   static final _auth = FirebaseAuth.instance;
 
-  FriendRequestHelper();
-
   static Future<List<FriendRequest>> getPendingFriendRequests() async {
     final currentUserId = _auth.currentUser!.uid;
 
@@ -57,6 +55,22 @@ class FriendRequestHelper {
     }
   }
 
+  static Future<void> sendFriendRequest(String otherId) async {
+    final currentUserId = _auth.currentUser!.uid;
+
+    try {
+      _firestore.collection('friend_requests').add({
+        'from': currentUserId,
+        'to': otherId,
+        'status': _enumToString(FriendRequestStatus.pending),
+        'timestamp': Timestamp.now(),
+      });
+    } catch (e) {
+      print(e);
+    }
+
+  }
+
   static Future<void> acceptFriendRequest(String requestId) async {
 
     await _firestore.collection('friend_requests').doc(requestId).update({'status': _enumToString(FriendRequestStatus.accepted)});
@@ -66,6 +80,19 @@ class FriendRequestHelper {
   static Future<void> rejectFriendRequest(String requestId) async {
 
     await _firestore.collection('friend_requests').doc(requestId).update({'status': _enumToString(FriendRequestStatus.rejected)});
+
+  }
+
+  static Future<bool> userHasRequest(String otherId) async {
+    final currentUserId = _auth.currentUser!.uid;
+
+    AggregateQuerySnapshot countQuery1 = await _firestore.collection('friend_requests').where('from', isEqualTo: otherId).where('to', isEqualTo: currentUserId).where('status', isEqualTo: _enumToString(FriendRequestStatus.pending)).count().get();
+    AggregateQuerySnapshot countQuery2 = await _firestore.collection('friend_requests').where('from', isEqualTo: currentUserId).where('to', isEqualTo: otherId).where('status', isEqualTo: _enumToString(FriendRequestStatus.pending)).count().get();
+
+    if (countQuery1.count + countQuery2.count > 0) {
+      return true;
+    }
+    return false;
 
   }
 
