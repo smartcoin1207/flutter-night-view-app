@@ -32,6 +32,42 @@ class FriendsHelper {
     _firestore.collection('friends').doc(otherId).set({userId: false}, SetOptions(merge: true));
   }
 
+  static Future<List<String>> getAllFriendIds() async {
+    final _firestore = FirebaseFirestore.instance;
+    final _auth = FirebaseAuth.instance;
+
+    List<String> friendIds = [];
+
+    if (_auth.currentUser == null) {
+      return [];
+    }
+
+    String userId = _auth.currentUser!.uid;
+
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await _firestore.collection('friends').doc(userId).get();
+      Map<String, dynamic>? data = snapshot.data();
+
+      if (data == null) {
+        return [];
+      }
+
+      for (MapEntry<String, dynamic> friend in data.entries) {
+
+        if (friend.value) {
+          friendIds.add(friend.key);
+        }
+
+      }
+
+    } catch (e) {
+      print(e);
+    }
+
+    return friendIds;
+
+  }
+
   static Future<bool> isFriend(String otherId) async {
     final _firestore = FirebaseFirestore.instance;
     final _auth = FirebaseAuth.instance;

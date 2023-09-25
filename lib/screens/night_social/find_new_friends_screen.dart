@@ -63,6 +63,7 @@ class _FindNewFriendsScreenState extends State<FindNewFriendsScreen> {
                       decoration: kSearchInputDecoration.copyWith(
                         hintText: 'Skriv navn',
                       ),
+                      textCapitalization: TextCapitalization.words,
                       cursorColor: primaryColor,
                       onChanged: (String input) {
                         Provider.of<SearchFriendsHelper>(context, listen: false)

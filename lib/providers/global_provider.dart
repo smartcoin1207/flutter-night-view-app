@@ -8,6 +8,7 @@ import 'package:nightview/models/club_data_helper.dart';
 import 'package:nightview/models/friend_request_helper.dart';
 import 'package:nightview/models/location_helper.dart';
 import 'package:nightview/models/main_offer_redemptions_helper.dart';
+import 'package:nightview/models/user_data.dart';
 import 'package:nightview/models/user_data_helper.dart';
 
 class GlobalProvider extends ChangeNotifier {
@@ -67,6 +68,7 @@ class GlobalProvider extends ChangeNotifier {
   bool _biographyChanged = false;
   bool _friendRequestsLoaded = false;
   bool _pendingFriendRequests = false;
+  List<UserData> _friends = [];
 
   ClubData get chosenClub => _chosenClub!;
   bool get chosenClubFavoriteLocal => _chosenClubFavoriteLocal;
@@ -77,6 +79,7 @@ class GlobalProvider extends ChangeNotifier {
   bool get biographyChanged => _biographyChanged;
   bool get friendRequestsLoaded => _friendRequestsLoaded;
   bool get pendingFriendRequests => _pendingFriendRequests;
+  List<UserData> get friends => _friends;
 
   bool get chosenClubFavorite {
     String userId = userDataHelper.currentUserId;
@@ -141,6 +144,11 @@ class GlobalProvider extends ChangeNotifier {
 
   void setPendingFriendRequests(bool newValue) {
     _pendingFriendRequests = newValue;
+    notifyListeners();
+  }
+
+  void setFriends(List<UserData> friends) {
+    _friends = friends;
     notifyListeners();
   }
 

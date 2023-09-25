@@ -79,17 +79,16 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                           Provider.of<GlobalProvider>(context)
                               .userDataHelper
                               .userData[request.fromId]!;
-                      // 0BC6Kd6hjWXlh0aSUf3W0ci8Qfr2
-                      // 0EcW1tUBQFUwJ0VXjCQ9OxGH6DM2
 
                       return ListTile(
                         shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(kMainBorderRadius),
-                            side: BorderSide(
-                              width: kMainStrokeWidth,
-                              color: Colors.white,
-                            )),
+                          borderRadius:
+                              BorderRadius.circular(kMainBorderRadius),
+                          side: BorderSide(
+                            width: kMainStrokeWidth,
+                            color: Colors.white,
+                          ),
+                        ),
                         leading: CircleAvatar(
                           backgroundImage: AssetImage('images/user_pb.jpg'),
                         ),
@@ -123,7 +122,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                             IconButton(
                               onPressed: () {
                                 FriendRequestHelper.rejectFriendRequest(
-                                    request.requestId)
+                                        request.requestId)
                                     .then((value) => fetchRequests());
                               },
                               icon: FaIcon(
