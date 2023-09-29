@@ -20,12 +20,13 @@ import 'package:nightview/screens/login_registration/registration_name_screen.da
 import 'package:nightview/screens/login_registration/registration_password_screen.dart';
 import 'package:nightview/screens/login_registration/registration_welcome_screen.dart';
 import 'package:nightview/screens/main_screen.dart';
-import 'package:nightview/screens/my_profile/my_profile_main_screen.dart';
+import 'package:nightview/screens/profile/my_profile_main_screen.dart';
 import 'package:nightview/screens/night_map/night_map_main_offer_screen.dart';
 import 'package:nightview/screens/night_social/find_new_friends_screen.dart';
 import 'package:nightview/screens/night_social/friend_requests_screen.dart';
 import 'package:nightview/screens/night_social/night_social_conversation_screen.dart';
 import 'package:nightview/screens/preferences/preferences_main_screen.dart';
+import 'package:nightview/screens/profile/other_profile_main_screen.dart';
 import 'package:nightview/screens/swipe/swipe_main_screen.dart';
 import 'package:nightview/screens/utility/waiting_for_login_screen.dart';
 import 'package:provider/provider.dart';
@@ -108,6 +109,7 @@ class NightViewApp extends StatelessWidget {
               const LocationPermissionCheckerScreen(),
           FriendRequestsScreen.id: (context) => const FriendRequestsScreen(),
           FindNewFriendsScreen.id: (context) => const FindNewFriendsScreen(),
+          OtherProfileMainScreen.id: (context) => const OtherProfileMainScreen(),
         },
       ),
     );

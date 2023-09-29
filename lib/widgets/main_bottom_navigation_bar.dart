@@ -13,7 +13,7 @@ class MainBottomNavigationBar extends StatelessWidget {
       currentIndex: Provider.of<MainNavigationProvider>(context).pageIndex,
       items: [
         BottomNavigationBarItem(
-          icon: Icon(Icons.pin_drop_sharp),
+          icon: Icon(Icons.pin_drop),
           label: 'MAP',
         ),
         // BottomNavigationBarItem(
@@ -21,7 +21,7 @@ class MainBottomNavigationBar extends StatelessWidget {
         //   label: 'OFFERS',
         // ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.people_alt_sharp),
+          icon: Icon(Icons.people_alt),
           label: 'SOCIAL',
         ),
       ],

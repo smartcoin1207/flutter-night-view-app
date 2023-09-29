@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:nightview/constants/button_styles.dart';
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
+import 'package:nightview/models/biography_helper.dart';
 import 'package:nightview/models/friends_helper.dart';
+import 'package:nightview/models/profile_picture_helper.dart';
 import 'package:nightview/models/user_data.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/screens/night_social/find_new_friends_screen.dart';
+import 'package:nightview/screens/profile/other_profile_main_screen.dart';
 import 'package:provider/provider.dart';
 
 class MyProfileMainScreen extends StatefulWidget {
@@ -21,8 +25,12 @@ class MyProfileMainScreen extends StatefulWidget {
 }
 
 class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
+
+  final TextEditingController biographyController = TextEditingController();
+
   @override
   void initState() {
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       List<String> friendIds = await FriendsHelper.getAllFriendIds();
       List<UserData> friends = friendIds
@@ -31,6 +39,9 @@ class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
               .userData[id]!)
           .toList();
       Provider.of<GlobalProvider>(context, listen: false).setFriends(friends);
+
+      String currentUserId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+      biographyController.text = await BiographyHelper.getBiography(currentUserId) ?? "";
     });
 
     super.initState();
@@ -80,6 +91,7 @@ class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
                                         listen: false)
                                     .setBiographyChanged(true);
                               },
+                              controller: biographyController,
                               maxLines: 8,
                               maxLength: 100,
                               textCapitalization: TextCapitalization.sentences,
@@ -100,14 +112,40 @@ class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       CircleAvatar(
-                        backgroundImage: AssetImage('images/user_pb.jpg'),
+                        backgroundImage: Provider.of<GlobalProvider>(context).profilePicture,
                         radius: 60.0,
                       ),
                       SizedBox(
                         height: kNormalSpacerValue,
                       ),
                       FilledButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          if (await ProfilePictureHelper
+                              .pickCropResizeCompressAndUploadPb()) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Profilbillede opdateret',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                backgroundColor: Colors.black,
+                              ),
+                            );
+                            String currentUserId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+                            String? pbUrl = await ProfilePictureHelper.getProfilePicture(currentUserId);
+                            Provider.of<GlobalProvider>(context, listen: false).setProfilePicture(pbUrl);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Der skete en fejl under ændring af profilbillede',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                backgroundColor: Colors.black,
+                              ),
+                            );
+                          }
+                        },
                         style: kTransparentButtonStyle,
                         child: Text(
                           'Skift PB',
@@ -121,9 +159,32 @@ class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
                         visible: Provider.of<GlobalProvider>(context)
                             .biographyChanged,
                         child: FilledButton(
-                          onPressed: () {
-                            Provider.of<GlobalProvider>(context, listen: false)
-                                .setBiographyChanged(false);
+                          onPressed: () async {
+
+                            if (await BiographyHelper.setBiography(biographyController.text)) {
+
+                              Provider.of<GlobalProvider>(context, listen: false)
+                                  .setBiographyChanged(false);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Biografi opdateret',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.black,
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Der skete en fejl under opdatering af biografi',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.black,
+                                ),
+                              );
+                            }
                           },
                           style: kTransparentButtonStyle,
                           child: Text(
@@ -172,6 +233,10 @@ class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
                           Provider.of<GlobalProvider>(context).friends[index];
 
                       return ListTile(
+                        onTap: () {
+                          Provider.of<GlobalProvider>(context, listen: false).setChosenProfile(user);
+                          Navigator.of(context).pushNamed(OtherProfileMainScreen.id);
+                        },
                         shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.circular(kMainBorderRadius),

@@ -1,4 +1,5 @@
 import 'package:appinio_swiper/appinio_swiper.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:nightview/constants/colors.dart';
@@ -69,6 +70,8 @@ class GlobalProvider extends ChangeNotifier {
   bool _friendRequestsLoaded = false;
   bool _pendingFriendRequests = false;
   List<UserData> _friends = [];
+  ImageProvider _profilePicture = AssetImage('images/user_pb.jpg');
+  UserData? _chosenProfile;
 
   ClubData get chosenClub => _chosenClub!;
   bool get chosenClubFavoriteLocal => _chosenClubFavoriteLocal;
@@ -80,6 +83,8 @@ class GlobalProvider extends ChangeNotifier {
   bool get friendRequestsLoaded => _friendRequestsLoaded;
   bool get pendingFriendRequests => _pendingFriendRequests;
   List<UserData> get friends => _friends;
+  ImageProvider get profilePicture => _profilePicture;
+  UserData? get chosenProfile => _chosenProfile;
 
   bool get chosenClubFavorite {
     String userId = userDataHelper.currentUserId;
@@ -149,6 +154,19 @@ class GlobalProvider extends ChangeNotifier {
 
   void setFriends(List<UserData> friends) {
     _friends = friends;
+    notifyListeners();
+  }
+
+  void setProfilePicture(String? url) {
+    if (url == null) {
+      _profilePicture = AssetImage('images/user_pb.jpg');
+    }
+    _profilePicture = NetworkImage(url!);
+    notifyListeners();
+  }
+
+  void setChosenProfile(UserData profile) {
+    _chosenProfile = profile;
     notifyListeners();
   }
 

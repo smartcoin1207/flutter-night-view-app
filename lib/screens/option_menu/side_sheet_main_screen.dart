@@ -5,7 +5,7 @@ import 'package:nightview/constants/enums.dart';
 import 'package:nightview/constants/values.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/screens/login_registration/login_registration_option_screen.dart';
-import 'package:nightview/screens/my_profile/my_profile_main_screen.dart';
+import 'package:nightview/screens/profile/my_profile_main_screen.dart';
 import 'package:nightview/screens/option_menu/bottom_sheet_status_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,7 +58,7 @@ class _SideSheetMainScreenState extends State<SideSheetMainScreen> {
                 ListTile(
                   title: Text('Se profil'),
                   leading: CircleAvatar(
-                    backgroundImage: AssetImage('images/user_pb.jpg'),
+                    backgroundImage: Provider.of<GlobalProvider>(context).profilePicture,
                   ),
                   onTap: () {
                     Navigator.of(context).pushNamed(MyProfileMainScreen.id);
