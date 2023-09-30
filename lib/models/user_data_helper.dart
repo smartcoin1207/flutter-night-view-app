@@ -45,8 +45,8 @@ class UserDataHelper {
     });
   }
 
-  String get currentUserId => _auth.currentUser!.uid;
-  UserData get currentUserData => userData[currentUserId]!;
+  String? get currentUserId => _auth.currentUser?.uid;
+  UserData? get currentUserData => userData[currentUserId];
   int get userCount => userData.length;
 
   Future<bool> createUserWithEmail({

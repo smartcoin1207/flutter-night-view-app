@@ -24,7 +24,7 @@ class _SideSheetMainScreenState extends State<SideSheetMainScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      String currentUserId = Provider.of<GlobalProvider>(context, listen: false)
+      String? currentUserId = Provider.of<GlobalProvider>(context, listen: false)
           .userDataHelper
           .currentUserId;
       PartyStatus status = Provider.of<GlobalProvider>(context, listen: false)

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nightview/constants/button_styles.dart';
-import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
 import 'package:nightview/models/biography_helper.dart';
+import 'package:nightview/models/friend_request_helper.dart';
+import 'package:nightview/models/friends_helper.dart';
 import 'package:nightview/models/profile_picture_helper.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:provider/provider.dart';
@@ -22,24 +23,88 @@ class _OtherProfileMainScreenState extends State<OtherProfileMainScreen> {
   final TextEditingController biographyController = TextEditingController();
   
   ImageProvider? profilePicture;
+  Widget? friendButton;
+  String? userId;
+  bool isFriend = false;
 
   @override
   void initState() {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      String? userId = Provider.of<GlobalProvider>(context, listen: false).chosenProfile?.id;
+      userId = Provider.of<GlobalProvider>(context, listen: false).chosenProfile?.id;
       
       if (userId == null) {
         return;
       }
-      
-      biographyController.text = await BiographyHelper.getBiography(userId) ?? '';
-      profilePicture = await ProfilePictureHelper.getProfilePicture(userId).then((url) => url == null ? null : NetworkImage(url));
+
+      biographyController.text = await BiographyHelper.getBiography(userId!) ?? '';
+      profilePicture = await ProfilePictureHelper.getProfilePicture(userId!).then((url) => url == null ? null : NetworkImage(url));
       setState(() {});
+
+      await checkFriendButton();
     });
 
     super.initState();
   }
+
+  Future<void> checkFriendButton() async {
+    isFriend = await FriendsHelper.isFriend(userId!);
+    bool friendRequestSent = await FriendRequestHelper.userHasRequest(userId!);
+
+    setState(() {
+      if (isFriend) {
+        friendButton = removeFriendButton();
+      } else if (!friendRequestSent) {
+        friendButton = addFriendButton();
+      } else {
+        friendButton = null;
+      }
+    });
+  }
+
+  Widget removeFriendButton() => FilledButton(
+    onPressed: () async {
+      await FriendsHelper.removeFriend(userId!);
+      checkFriendButton();
+    },
+    style: kFilledButtonStyle.copyWith(
+      backgroundColor: MaterialStatePropertyAll(Colors.redAccent),
+    ),
+    child: Padding(
+      padding: EdgeInsets.all(kMainPadding),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Fjern ven',
+            style: kTextStyleH2,
+          ),
+          FaIcon(FontAwesomeIcons.userMinus),
+        ],
+      ),
+    ),
+  );
+
+  Widget addFriendButton() => FilledButton(
+    onPressed: () async {
+      await FriendRequestHelper.sendFriendRequest(userId!);
+      checkFriendButton();
+    },
+    style: kFilledButtonStyle,
+    child: Padding(
+      padding: EdgeInsets.all(kMainPadding),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Tilføj ven',
+            style: kTextStyleH2,
+          ),
+          FaIcon(FontAwesomeIcons.userPlus),
+        ],
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -103,20 +168,23 @@ class _OtherProfileMainScreenState extends State<OtherProfileMainScreen> {
                       SizedBox(
                         height: kNormalSpacerValue,
                       ),
-                      FilledButton(
-                        onPressed: () {},
-                        style: kTransparentButtonStyle,
-                        child: Row(
-                          children: [
-                            Text(
-                              'Find',
-                              style: kTextStyleH3,
-                            ),
-                            SizedBox(
-                              width: kSmallSpacerValue,
-                            ),
-                            Icon(Icons.pin_drop),
-                          ],
+                      Visibility(
+                        visible: isFriend,
+                        child: FilledButton(
+                          onPressed: () {},
+                          style: kTransparentButtonStyle,
+                          child: Row(
+                            children: [
+                              Text(
+                                'Find',
+                                style: kTextStyleH3,
+                              ),
+                              SizedBox(
+                                width: kSmallSpacerValue,
+                              ),
+                              Icon(Icons.pin_drop),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -126,23 +194,7 @@ class _OtherProfileMainScreenState extends State<OtherProfileMainScreen> {
             ),
             Padding(
               padding: EdgeInsets.all(kMainPadding),
-              child: FilledButton(
-                onPressed: () {},
-                style: kFilledButtonStyle,
-                child: Padding(
-                  padding: EdgeInsets.all(kMainPadding),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Tilføj ven',
-                        style: kTextStyleH2,
-                      ),
-                      FaIcon(FontAwesomeIcons.userPlus),
-                    ],
-                  ),
-                ),
-              ),
+              child: friendButton,
             ),
           ],
         ),

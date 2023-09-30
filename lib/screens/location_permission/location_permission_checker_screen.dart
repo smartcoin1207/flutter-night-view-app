@@ -1,9 +1,11 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/models/location_helper.dart';
+import 'package:nightview/models/user_data.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/screens/location_permission/location_permission_always_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_whileinuse_screen.dart';
@@ -41,9 +43,13 @@ class _LocationPermissionCheckerScreenState
                 await locationHelper.activateBackgroundLocation();
                 locationHelper.startLocationService();
               }
-              Provider.of<GlobalProvider>(context, listen: false).userDataHelper
-                  .currentUserData
-                  .answeredStatusToday()
+              UserData? currentUserData;
+              do {
+                currentUserData = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserData;
+                await Future.delayed(Duration(milliseconds: 100));
+              } while (currentUserData == null);
+
+              currentUserData.answeredStatusToday()
                   ? Navigator.of(context).pushReplacementNamed(MainScreen.id)
                   : Navigator.of(context).pushReplacementNamed(SwipeMainScreen.id);
             } else {
@@ -63,9 +69,13 @@ class _LocationPermissionCheckerScreenState
             if (await locationHelper.hasPermissionPrecise) {
               await locationHelper.activateBackgroundLocation();
               locationHelper.startLocationService();
-              Provider.of<GlobalProvider>(context, listen: false).userDataHelper
-                  .currentUserData
-                  .answeredStatusToday()
+              UserData? currentUserData;
+              do {
+                currentUserData = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserData;
+                await Future.delayed(Duration(milliseconds: 100));
+              } while (currentUserData == null);
+
+              currentUserData.answeredStatusToday()
                   ? Navigator.of(context).pushReplacementNamed(MainScreen.id)
                   : Navigator.of(context).pushReplacementNamed(SwipeMainScreen.id);
             } else {

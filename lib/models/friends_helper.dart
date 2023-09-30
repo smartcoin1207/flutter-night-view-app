@@ -14,8 +14,16 @@ class FriendsHelper {
 
     String userId = _auth.currentUser!.uid;
 
-    _firestore.collection('friends').doc(userId).set({otherId: true}, SetOptions(merge: true));
-    _firestore.collection('friends').doc(otherId).set({userId: true}, SetOptions(merge: true));
+    await Future.wait([
+      _firestore
+          .collection('friends')
+          .doc(userId)
+          .set({otherId: true}, SetOptions(merge: true)),
+      _firestore
+          .collection('friends')
+          .doc(otherId)
+          .set({userId: true}, SetOptions(merge: true)),
+    ]);
   }
 
   static Future<void> removeFriend(String otherId) async {
@@ -28,8 +36,16 @@ class FriendsHelper {
 
     String userId = _auth.currentUser!.uid;
 
-    _firestore.collection('friends').doc(userId).set({otherId: false}, SetOptions(merge: true));
-    _firestore.collection('friends').doc(otherId).set({userId: false}, SetOptions(merge: true));
+    await Future.wait([
+      _firestore
+          .collection('friends')
+          .doc(userId)
+          .set({otherId: false}, SetOptions(merge: true)),
+      _firestore
+          .collection('friends')
+          .doc(otherId)
+          .set({userId: false}, SetOptions(merge: true)),
+    ]);
   }
 
   static Future<List<String>> getAllFriendIds() async {
@@ -45,7 +61,8 @@ class FriendsHelper {
     String userId = _auth.currentUser!.uid;
 
     try {
-      DocumentSnapshot<Map<String, dynamic>> snapshot = await _firestore.collection('friends').doc(userId).get();
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('friends').doc(userId).get();
       Map<String, dynamic>? data = snapshot.data();
 
       if (data == null) {
@@ -53,19 +70,15 @@ class FriendsHelper {
       }
 
       for (MapEntry<String, dynamic> friend in data.entries) {
-
         if (friend.value) {
           friendIds.add(friend.key);
         }
-
       }
-
     } catch (e) {
       print(e);
     }
 
     return friendIds;
-
   }
 
   static Future<bool> isFriend(String otherId) async {
@@ -78,7 +91,8 @@ class FriendsHelper {
 
     String userId = _auth.currentUser!.uid;
 
-    DocumentSnapshot<Map<String, dynamic>> snap = await _firestore.collection('friends').doc(userId).get();
+    DocumentSnapshot<Map<String, dynamic>> snap =
+        await _firestore.collection('friends').doc(userId).get();
 
     if (!snap.exists) {
       return false;
@@ -89,10 +103,10 @@ class FriendsHelper {
     }
 
     return snap.get(otherId);
-
   }
 
-  static Future<List<UserData>> filterFriends(List<UserData> users, {FriendFilterType filterType = FriendFilterType.exclude}) async {
+  static Future<List<UserData>> filterFriends(List<UserData> users,
+      {FriendFilterType filterType = FriendFilterType.exclude}) async {
     final _auth = FirebaseAuth.instance;
 
     if (_auth.currentUser == null) {
@@ -102,22 +116,19 @@ class FriendsHelper {
     List<UserData> filteredUsers = [];
 
     for (UserData user in users) {
-
       if (user.id == _auth.currentUser!.uid) {
         continue;
       }
 
       bool friend = await isFriend(user.id);
-      bool filterFriend = (filterType == FriendFilterType.include) ? friend : !friend;
+      bool filterFriend =
+          (filterType == FriendFilterType.include) ? friend : !friend;
 
       if (filterFriend) {
         filteredUsers.add(user);
       }
-
     }
 
     return filteredUsers;
-
   }
-
 }

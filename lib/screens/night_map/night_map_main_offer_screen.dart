@@ -27,10 +27,12 @@ class _NightMapMainOfferScreenState extends State<NightMapMainOfferScreen> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      String currentUserId = Provider.of<GlobalProvider>(context, listen: false)
-          .userDataHelper
-          .currentUserId;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      String? currentUserId;
+      do {
+        currentUserId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+        await Future.delayed(Duration(milliseconds: 100));
+      } while (currentUserId == null);
       String clubId =
           Provider.of<GlobalProvider>(context, listen: false).chosenClub.id;
       Provider.of<GlobalProvider>(context, listen: false)
@@ -72,7 +74,7 @@ class _NightMapMainOfferScreenState extends State<NightMapMainOfferScreen> {
                 buttonColor: primaryColor,
                 vibrationFlag: true,
                 action: () async {
-                  String currentUserId =
+                  String? currentUserId =
                       Provider.of<GlobalProvider>(context, listen: false)
                           .userDataHelper
                           .currentUserId;
@@ -80,6 +82,18 @@ class _NightMapMainOfferScreenState extends State<NightMapMainOfferScreen> {
                       Provider.of<GlobalProvider>(context, listen: false)
                           .chosenClub
                           .id;
+                  if (currentUserId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Der skete en fejl',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Colors.black,
+                      ),
+                    );
+                    return;
+                  }
                   bool succes = await Provider.of<GlobalProvider>(context,
                           listen: false)
                       .mainOfferRedemptionsHelper

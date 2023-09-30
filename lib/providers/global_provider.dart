@@ -87,7 +87,7 @@ class GlobalProvider extends ChangeNotifier {
   UserData? get chosenProfile => _chosenProfile;
 
   bool get chosenClubFavorite {
-    String userId = userDataHelper.currentUserId;
+    String? userId = userDataHelper.currentUserId;
     String clubId = chosenClub.id;
     List<dynamic> favoritesList;
 
@@ -185,7 +185,11 @@ class GlobalProvider extends ChangeNotifier {
 
   Future<bool> deleteAllUserData() async {
 
-    String userIdToDelete = userDataHelper.currentUserId;
+    String? userIdToDelete = userDataHelper.currentUserId;
+
+    if (userIdToDelete == null) {
+      return false;
+    }
 
     try {
       await userDataHelper.deleteDataAssociatedTo(userIdToDelete);

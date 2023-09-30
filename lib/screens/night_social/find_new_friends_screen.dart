@@ -7,6 +7,8 @@ import 'package:nightview/constants/values.dart';
 import 'package:nightview/models/friend_request_helper.dart';
 import 'package:nightview/models/search_friends_helper.dart';
 import 'package:nightview/models/user_data.dart';
+import 'package:nightview/providers/global_provider.dart';
+import 'package:nightview/screens/profile/other_profile_main_screen.dart';
 import 'package:provider/provider.dart';
 
 class FindNewFriendsScreen extends StatefulWidget {
@@ -80,6 +82,10 @@ class _FindNewFriendsScreenState extends State<FindNewFriendsScreen> {
                     UserData user = Provider.of<SearchFriendsHelper>(context)
                         .searchedUsers[index];
                     return ListTile(
+                      onTap: () {
+                        Provider.of<GlobalProvider>(context, listen: false).setChosenProfile(user);
+                        Navigator.of(context).pushNamed(OtherProfileMainScreen.id);
+                      },
                       shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.circular(kMainBorderRadius),

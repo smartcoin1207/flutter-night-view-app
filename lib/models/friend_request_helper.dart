@@ -59,7 +59,7 @@ class FriendRequestHelper {
     final currentUserId = _auth.currentUser!.uid;
 
     try {
-      _firestore.collection('friend_requests').add({
+      await _firestore.collection('friend_requests').add({
         'from': currentUserId,
         'to': otherId,
         'status': _enumToString(FriendRequestStatus.pending),

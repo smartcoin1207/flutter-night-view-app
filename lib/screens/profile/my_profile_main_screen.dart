@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -40,8 +42,11 @@ class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
           .toList();
       Provider.of<GlobalProvider>(context, listen: false).setFriends(friends);
 
-      String currentUserId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
-      biographyController.text = await BiographyHelper.getBiography(currentUserId) ?? "";
+      String? currentUserId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+      if (currentUserId == null) {
+        biographyController.text = "";
+      }
+      biographyController.text = await BiographyHelper.getBiography(currentUserId!) ?? "";
     });
 
     super.initState();
@@ -131,7 +136,19 @@ class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
                                 backgroundColor: Colors.black,
                               ),
                             );
-                            String currentUserId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+                            String? currentUserId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+                            if (currentUserId == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Der skete en fejl under indlæsning af profilbillede',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.black,
+                                ),
+                              );
+                              return;
+                            }
                             String? pbUrl = await ProfilePictureHelper.getProfilePicture(currentUserId);
                             Provider.of<GlobalProvider>(context, listen: false).setProfilePicture(pbUrl);
                           } else {

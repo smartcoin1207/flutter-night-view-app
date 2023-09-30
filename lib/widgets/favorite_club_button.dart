@@ -30,8 +30,22 @@ class _FavoriteClubButtonState extends State<FavoriteClubButton> {
         GlobalProvider provider =
             Provider.of<GlobalProvider>(context, listen: false);
 
-        String userId = provider.userDataHelper.currentUserId;
+        String? userId = provider.userDataHelper.currentUserId;
         String clubId = provider.chosenClub.id;
+
+        if (userId ==  null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Der skete en fejl',
+                style: TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.black,
+            ),
+          );
+          return;
+        }
+
         if (provider.chosenClubFavorite) {
           provider.clubDataHelper.removeFavoriteClub(clubId, userId);
           provider.setChosenClubFavoriteLocal(false);

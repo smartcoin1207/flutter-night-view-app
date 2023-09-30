@@ -23,7 +23,12 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      String currentUserId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+
+      String? currentUserId;
+      do {
+        currentUserId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+        await Future.delayed(Duration(milliseconds: 100));
+      } while (currentUserId == null);
       String? pbUrl = await ProfilePictureHelper.getProfilePicture(currentUserId);
       Provider.of<GlobalProvider>(context, listen: false).setProfilePicture(pbUrl);
     });
