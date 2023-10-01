@@ -1,5 +1,4 @@
 import 'package:appinio_swiper/appinio_swiper.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:nightview/constants/colors.dart';
@@ -72,6 +71,7 @@ class GlobalProvider extends ChangeNotifier {
   List<UserData> _friends = [];
   ImageProvider _profilePicture = AssetImage('images/user_pb.jpg');
   UserData? _chosenProfile;
+  String? _chosenChatId;
 
   ClubData get chosenClub => _chosenClub!;
   bool get chosenClubFavoriteLocal => _chosenClubFavoriteLocal;
@@ -85,6 +85,7 @@ class GlobalProvider extends ChangeNotifier {
   List<UserData> get friends => _friends;
   ImageProvider get profilePicture => _profilePicture;
   UserData? get chosenProfile => _chosenProfile;
+  String? get chosenChatId => _chosenChatId;
 
   bool get chosenClubFavorite {
     String? userId = userDataHelper.currentUserId;
@@ -167,6 +168,11 @@ class GlobalProvider extends ChangeNotifier {
 
   void setChosenProfile(UserData profile) {
     _chosenProfile = profile;
+    notifyListeners();
+  }
+
+  void setChosenChatId(String id) {
+    _chosenChatId = id;
     notifyListeners();
   }
 

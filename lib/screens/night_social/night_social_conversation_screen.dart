@@ -1,10 +1,18 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/input_decorations.dart';
 import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
+import 'package:nightview/models/chat_helper.dart';
 import 'package:nightview/models/chat_message_data.dart';
+import 'package:nightview/models/chat_subscriber.dart';
+import 'package:nightview/models/simple_user_data.dart';
+import 'package:nightview/providers/global_provider.dart';
+import 'package:provider/provider.dart';
 
 class NightSocialConversationScreen extends StatefulWidget {
   static const id = 'night_social_conversation_screen';
@@ -12,39 +20,36 @@ class NightSocialConversationScreen extends StatefulWidget {
   const NightSocialConversationScreen({super.key});
 
   @override
-  State<NightSocialConversationScreen> createState() =>
-      _NightSocialConversationScreenState();
+  State<NightSocialConversationScreen> createState() => _NightSocialConversationScreenState();
 }
 
-class _NightSocialConversationScreenState
-    extends State<NightSocialConversationScreen> {
-  List<ChatMessageData> messages = [];
+class _NightSocialConversationScreenState extends State<NightSocialConversationScreen> {
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? chatSubscription;
+  TextEditingController messageController = TextEditingController();
+  String _lastMessageTimestamp = '';
+  SimpleUserData otherUser = SimpleUserData.empty(); // HER ER DU NÅET TIL!
 
   @override
   void initState() {
-    for (int i = 0; i < 20; i++) {
-      String m = "";
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      String? chatId = Provider.of<GlobalProvider>(context, listen: false).chosenChatId;
 
-      for (int j = 0; j < i; j++) {
-        m += j.toString();
-        m += j.toString();
-        m += j.toString();
-        m += j.toString();
-        m += j.toString();
-        m += j.toString();
+      if (chatId == null) {
+        return;
       }
-
-      messages.add(
-        ChatMessageData(
-          sender: i % 3 == 0 ? 'Gunnar' : 'Max',
-          receiver: i % 3 != 0 ? 'Gunnar' : 'Max',
-          message: '${m} ${i}',
-          timestamp: DateTime.now(),
-        ),
-      );
-    }
-    messages = messages.reversed.toList();
+      _lastMessageTimestamp = '';
+      chatSubscription = Provider.of<ChatSubscriber>(context, listen: false).subscribeToChat(chatId);
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    if (chatSubscription != null) {
+      chatSubscription!.cancel();
+    }
+
+    super.dispose();
   }
 
   @override
@@ -89,32 +94,40 @@ class _NightSocialConversationScreenState
                     child: ListView.separated(
                       reverse: true,
                       padding: EdgeInsets.all(kMainPadding),
-                      itemCount: messages.length,
+                      itemCount: Provider.of<ChatSubscriber>(context).messages.length,
                       itemBuilder: (context, index) {
-                        ChatMessageData message = messages[index];
-                        bool bySelf = message.sender == 'Max';
+                        ChatMessageData? message = Provider.of<ChatSubscriber>(context, listen: false).messages.values.toList().reversed.toList()[index];
+
+                        if (message == null) {
+                          return null;
+                        }
+
+                        bool bySelf = message.sender == Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+
+                        bool showTimestamp = message.getReadableTimestamp() != _lastMessageTimestamp;
+                        _lastMessageTimestamp = message.getReadableTimestamp();
 
                         return Column(
                           children: [
-                            Text(
-                              message.getReadableTimestamp(),
-                              style: kTextStyleP2.copyWith(
-                                color: Colors.grey,
+                            Visibility(
+                              visible: showTimestamp,
+                              child: Text(
+                                message.getReadableTimestamp(),
+                                style: kTextStyleP2.copyWith(
+                                  color: Colors.grey,
+                                ),
                               ),
                             ),
                             SizedBox(
-                              height: kNormalSpacerValue,
+                              height: kSmallSpacerValue,
                             ),
                             Align(
-                              alignment: bySelf
-                                  ? Alignment.topRight
-                                  : Alignment.topLeft,
+                              alignment: bySelf ? Alignment.topRight : Alignment.topLeft,
                               child: Container(
                                 padding: EdgeInsets.all(kMainPadding),
                                 constraints: BoxConstraints(
                                   minWidth: 40.0,
-                                  maxWidth:
-                                      MediaQuery.of(context).size.width * 0.75,
+                                  maxWidth: MediaQuery.of(context).size.width * 0.75,
                                 ),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(
@@ -138,7 +151,7 @@ class _NightSocialConversationScreenState
                         );
                       },
                       separatorBuilder: (context, index) => SizedBox(
-                        height: kNormalSpacerValue,
+                        height: kSmallSpacerValue,
                       ),
                     ),
                   ),
@@ -148,6 +161,7 @@ class _NightSocialConversationScreenState
                       children: [
                         Expanded(
                           child: TextField(
+                            controller: messageController,
                             decoration: kMainInputDecoration.copyWith(
                               hintText: 'Aa',
                             ),
@@ -156,8 +170,30 @@ class _NightSocialConversationScreenState
                           ),
                         ),
                         TextButton(
-                          onPressed: () {
-                            print('SEND MESSAGE!');
+                          onPressed: () async {
+                            String? chatId = Provider.of<GlobalProvider>(context, listen: false).chosenChatId;
+                            String? userId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+                            if (chatId == null || userId == null) {
+                              return;
+                            }
+                            ChatMessageData messageData = ChatMessageData(
+                              sender: userId,
+                              message: messageController.text,
+                              timestamp: DateTime.now(),
+                            );
+                            if (await ChatHelper.sendChatMessage(messageData, chatId)) {
+                              messageController.text = "";
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Kunne ikke sende besked',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.black,
+                                ),
+                              );
+                            }
                           },
                           child: FaIcon(
                             FontAwesomeIcons.solidPaperPlane,

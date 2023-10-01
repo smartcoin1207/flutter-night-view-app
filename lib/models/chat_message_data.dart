@@ -2,15 +2,17 @@
 class ChatMessageData {
 
   final String sender;
-  final String receiver;
   final String message;
   final DateTime timestamp;
 
-  ChatMessageData({required this.sender, required this.receiver, required this.message, required this.timestamp});
+  ChatMessageData({required this.sender, required this.message, required this.timestamp});
 
   String getReadableTimestamp() {
 
-    return '${getShortWeekday().toUpperCase()}${timestamp.hour}:${timestamp.minute}';
+    String hour = timestamp.hour.toString().padLeft(2, '0');
+    String minute = timestamp.minute.toString().padLeft(2, '0');
+
+    return '${getShortWeekday().toUpperCase()}$hour:$minute';
 
   }
 

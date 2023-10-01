@@ -6,6 +6,7 @@ import 'package:nightview/models/friend_request_helper.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/screens/night_social/find_new_friends_screen.dart';
 import 'package:nightview/screens/night_social/friend_requests_screen.dart';
+import 'package:nightview/screens/night_social/new_chat_screen.dart';
 import 'package:nightview/screens/night_social/night_social_conversation_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -53,7 +54,9 @@ class _NightSocialMainScreenState extends State<NightSocialMainScreen> {
               Row(
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(NewChatScreen.id);
+                    },
                     icon: FaIcon(
                       FontAwesomeIcons.penToSquare,
                     ),

@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nightview/firebase_options.dart';
+import 'package:nightview/models/chat_subscriber.dart';
+import 'package:nightview/models/search_new_chat_helper.dart';
 import 'package:nightview/models/search_friends_helper.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/providers/login_registration_provider.dart';
@@ -20,6 +22,7 @@ import 'package:nightview/screens/login_registration/registration_name_screen.da
 import 'package:nightview/screens/login_registration/registration_password_screen.dart';
 import 'package:nightview/screens/login_registration/registration_welcome_screen.dart';
 import 'package:nightview/screens/main_screen.dart';
+import 'package:nightview/screens/night_social/new_chat_screen.dart';
 import 'package:nightview/screens/profile/my_profile_main_screen.dart';
 import 'package:nightview/screens/night_map/night_map_main_offer_screen.dart';
 import 'package:nightview/screens/night_social/find_new_friends_screen.dart';
@@ -60,6 +63,12 @@ class NightViewApp extends StatelessWidget {
         ChangeNotifierProvider<SearchFriendsHelper>(
           create: (_) => SearchFriendsHelper(),
         ),
+        ChangeNotifierProvider<SearchNewChatHelper>(
+          create: (_) => SearchNewChatHelper(),
+        ),
+        ChangeNotifierProvider<ChatSubscriber>(
+          create: (_) => ChatSubscriber(),
+        ),
       ],
       child: MaterialApp(
         theme: ThemeData.dark().copyWith(
@@ -75,41 +84,29 @@ class NightViewApp extends StatelessWidget {
         initialRoute: WaitingForLoginScreen.id,
         routes: {
           LoginMainScreen.id: (context) => const LoginMainScreen(),
-          LoginRegistrationOptionScreen.id: (context) =>
-              const LoginRegistrationOptionScreen(),
+          LoginRegistrationOptionScreen.id: (context) => const LoginRegistrationOptionScreen(),
           RegistrationAgeScreen.id: (context) => const RegistrationAgeScreen(),
-          RegistrationAuthenticationScreen.id: (context) =>
-              const RegistrationAuthenticationScreen(),
-          RegistrationConfirmationScreen.id: (context) =>
-              const RegistrationConfirmationScreen(),
-          RegistrationNameScreen.id: (context) =>
-              const RegistrationNameScreen(),
-          RegistrationPasswordScreen.id: (context) =>
-              const RegistrationPasswordScreen(),
-          RegistrationWelcomeScreen.id: (context) =>
-              const RegistrationWelcomeScreen(),
+          RegistrationAuthenticationScreen.id: (context) => const RegistrationAuthenticationScreen(),
+          RegistrationConfirmationScreen.id: (context) => const RegistrationConfirmationScreen(),
+          RegistrationNameScreen.id: (context) => const RegistrationNameScreen(),
+          RegistrationPasswordScreen.id: (context) => const RegistrationPasswordScreen(),
+          RegistrationWelcomeScreen.id: (context) => const RegistrationWelcomeScreen(),
           MyProfileMainScreen.id: (context) => const MyProfileMainScreen(),
-          NightSocialConversationScreen.id: (context) =>
-              const NightSocialConversationScreen(),
+          NightSocialConversationScreen.id: (context) => const NightSocialConversationScreen(),
           MainScreen.id: (context) => const MainScreen(),
           PreferencesMainScreen.id: (context) => const PreferencesMainScreen(),
           SwipeMainScreen.id: (context) => const SwipeMainScreen(),
           WaitingForLoginScreen.id: (context) => const WaitingForLoginScreen(),
-          NightMapMainOfferScreen.id: (context) =>
-              const NightMapMainOfferScreen(),
-          LocationPermissionWhileInUseScreen.id: (context) =>
-              const LocationPermissionWhileInUseScreen(),
-          LocationPermissionAlwaysScreen.id: (context) =>
-              const LocationPermissionAlwaysScreen(),
-          LocationPermissionPreciseScreen.id: (context) =>
-              const LocationPermissionPreciseScreen(),
-          LocationPermissionServiceScreen.id: (context) =>
-              const LocationPermissionServiceScreen(),
-          LocationPermissionCheckerScreen.id: (context) =>
-              const LocationPermissionCheckerScreen(),
+          NightMapMainOfferScreen.id: (context) => const NightMapMainOfferScreen(),
+          LocationPermissionWhileInUseScreen.id: (context) => const LocationPermissionWhileInUseScreen(),
+          LocationPermissionAlwaysScreen.id: (context) => const LocationPermissionAlwaysScreen(),
+          LocationPermissionPreciseScreen.id: (context) => const LocationPermissionPreciseScreen(),
+          LocationPermissionServiceScreen.id: (context) => const LocationPermissionServiceScreen(),
+          LocationPermissionCheckerScreen.id: (context) => const LocationPermissionCheckerScreen(),
           FriendRequestsScreen.id: (context) => const FriendRequestsScreen(),
           FindNewFriendsScreen.id: (context) => const FindNewFriendsScreen(),
           OtherProfileMainScreen.id: (context) => const OtherProfileMainScreen(),
+          NewChatScreen.id: (context) => const NewChatScreen(),
         },
       ),
     );
