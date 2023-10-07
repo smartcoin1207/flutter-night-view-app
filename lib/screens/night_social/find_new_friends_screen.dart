@@ -30,6 +30,14 @@ class _FindNewFriendsScreenState extends State<FindNewFriendsScreen> {
     });
   }
 
+  ImageProvider getPb(int index) {
+    try {
+      return Provider.of<SearchFriendsHelper>(context, listen: false).searchedUserPbs[index];
+    } catch (e) {
+      return AssetImage('images/user_pb.jpg');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +102,7 @@ class _FindNewFriendsScreenState extends State<FindNewFriendsScreen> {
                             color: Colors.white,
                           )),
                       leading: CircleAvatar(
-                        backgroundImage: AssetImage('images/user_pb.jpg'),
+                        backgroundImage: getPb(index),
                       ),
                       title: Text(
                         '${user.firstName} ${user.lastName}',
@@ -107,7 +115,7 @@ class _FindNewFriendsScreenState extends State<FindNewFriendsScreen> {
                         ),
                         onPressed: () {
                           FriendRequestHelper.sendFriendRequest(user.id);
-                          Provider.of<SearchFriendsHelper>(context, listen: false).removeFromSearch(user.id);
+                          Provider.of<SearchFriendsHelper>(context, listen: false).removeFromSearch(index);
                         },
                       ),
                     );

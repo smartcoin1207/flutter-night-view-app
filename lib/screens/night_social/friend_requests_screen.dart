@@ -7,8 +7,10 @@ import 'package:nightview/constants/values.dart';
 import 'package:nightview/models/friend_request.dart';
 import 'package:nightview/models/friend_request_helper.dart';
 import 'package:nightview/models/friends_helper.dart';
+import 'package:nightview/models/profile_picture_helper.dart';
 import 'package:nightview/models/user_data.dart';
 import 'package:nightview/providers/global_provider.dart';
+import 'package:nightview/screens/profile/other_profile_main_screen.dart';
 import 'package:provider/provider.dart';
 
 class FriendRequestsScreen extends StatefulWidget {
@@ -21,6 +23,7 @@ class FriendRequestsScreen extends StatefulWidget {
 
 class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
   List<FriendRequest> friendRequests = [];
+  List<ImageProvider> friendRequestPbs = [];
 
   @override
   void initState() {
@@ -35,8 +38,17 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
     Provider.of<GlobalProvider>(context, listen: false)
         .setFriendRequestsLoaded(false);
 
-    FriendRequestHelper.getPendingFriendRequests().then((requests) {
+    FriendRequestHelper.getPendingFriendRequests().then((requests) async {
       friendRequests = requests.reversed.toList();
+      friendRequestPbs.clear();
+      for (FriendRequest request in friendRequests) {
+        String? url = await ProfilePictureHelper.getProfilePicture(request.fromId);
+        if (url == null) {
+          friendRequestPbs.add(const AssetImage('images/user_pb.jpg'));
+        } else {
+          friendRequestPbs.add(NetworkImage(url));
+        }
+      }
       Provider.of<GlobalProvider>(context, listen: false)
           .setFriendRequestsLoaded(true);
     });
@@ -81,6 +93,10 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                               .userData[request.fromId]!;
 
                       return ListTile(
+                        onTap: () {
+                          Provider.of<GlobalProvider>(context, listen: false).setChosenProfile(fromUserData);
+                          Navigator.of(context).pushNamed(OtherProfileMainScreen.id);
+                        },
                         shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.circular(kMainBorderRadius),
@@ -90,7 +106,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                           ),
                         ),
                         leading: CircleAvatar(
-                          backgroundImage: AssetImage('images/user_pb.jpg'),
+                          backgroundImage: friendRequestPbs[index],
                         ),
                         title: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -27,6 +27,9 @@ class ChatHelper {
     try {
       DocumentReference<Map<String,dynamic>> ref = await firestore.collection('chats').add({
         'participants': participants,
+        'last_message': '',
+        'last_sender': '',
+        'last_updated': Timestamp.now(),
       });
       return ref.id;
     } catch (e) {
@@ -57,10 +60,31 @@ class ChatHelper {
         'sender': messageData.sender,
         'timestamp': Timestamp.fromDate(messageData.timestamp),
       });
+      await firestore.collection('chats').doc(chatId).set({
+        'last_message': messageData.message,
+        'last_sender': messageData.sender,
+        'last_updated': Timestamp.now(),
+      }, SetOptions(merge: true));
       return true;
     } catch (e) {
       print(e);
       return false;
+    }
+
+  }
+
+  static Future<String?> getOtherMember(String chatId) async {
+    final firestore = FirebaseFirestore.instance;
+    final auth = FirebaseAuth.instance;
+
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snap = await firestore.collection('chats').doc(chatId).get();
+      List<String> participants = List<String>.from(snap.get('participants'));
+      participants.removeWhere((id) => id == auth.currentUser!.uid);
+      return participants.first;
+    } catch (e) {
+      print(e);
+      return null;
     }
 
   }

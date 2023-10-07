@@ -10,7 +10,8 @@ import 'package:nightview/constants/values.dart';
 import 'package:nightview/models/chat_helper.dart';
 import 'package:nightview/models/chat_message_data.dart';
 import 'package:nightview/models/chat_subscriber.dart';
-import 'package:nightview/models/simple_user_data.dart';
+import 'package:nightview/models/profile_picture_helper.dart';
+import 'package:nightview/models/user_data.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -27,11 +28,10 @@ class _NightSocialConversationScreenState extends State<NightSocialConversationS
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? chatSubscription;
   TextEditingController messageController = TextEditingController();
   String _lastMessageTimestamp = '';
-  SimpleUserData otherUser = SimpleUserData.empty(); // HER ER DU NÅET TIL!
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       String? chatId = Provider.of<GlobalProvider>(context, listen: false).chosenChatId;
 
       if (chatId == null) {
@@ -39,6 +39,16 @@ class _NightSocialConversationScreenState extends State<NightSocialConversationS
       }
       _lastMessageTimestamp = '';
       chatSubscription = Provider.of<ChatSubscriber>(context, listen: false).subscribeToChat(chatId);
+      String? otherId = await ChatHelper.getOtherMember(chatId);
+      if (otherId == null) {
+        Provider.of<GlobalProvider>(context, listen: false).setChosenChatTitle(null);
+        Provider.of<GlobalProvider>(context, listen: false).setChosenChatPicture(null);
+      } else {
+        UserData? otherUser = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.userData[otherId];
+        Provider.of<GlobalProvider>(context, listen: false).setChosenChatTitle('${otherUser?.firstName} ${otherUser?.lastName}');
+        String? otherPbUrl = await ProfilePictureHelper.getProfilePicture(otherId);
+        Provider.of<GlobalProvider>(context, listen: false).setChosenChatPicture(otherPbUrl);
+      }
     });
     super.initState();
   }
@@ -73,13 +83,13 @@ class _NightSocialConversationScreenState extends State<NightSocialConversationS
                 child: Row(
                   children: [
                     CircleAvatar(
-                      backgroundImage: AssetImage('images/user_pb.jpg'),
+                      backgroundImage: Provider.of<GlobalProvider>(context).chosenChatPicture,
                     ),
                     SizedBox(
                       width: kNormalSpacerValue,
                     ),
                     Text(
-                      'Gunnar Nielsen',
+                      Provider.of<GlobalProvider>(context).chosenChatTitle,
                       style: kTextStyleH2,
                     ),
                   ],

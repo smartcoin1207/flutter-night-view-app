@@ -1,9 +1,7 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:nightview/constants/button_styles.dart';
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/text_styles.dart';
@@ -34,6 +32,13 @@ class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
   void initState() {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+
+      String? currentUserId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+      if (currentUserId == null) {
+        biographyController.text = "";
+      }
+      biographyController.text = await BiographyHelper.getBiography(currentUserId!) ?? "";
+
       List<String> friendIds = await FriendsHelper.getAllFriendIds();
       List<UserData> friends = friendIds
           .map((id) => Provider.of<GlobalProvider>(context, listen: false)
@@ -41,15 +46,28 @@ class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
               .userData[id]!)
           .toList();
       Provider.of<GlobalProvider>(context, listen: false).setFriends(friends);
-
-      String? currentUserId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
-      if (currentUserId == null) {
-        biographyController.text = "";
+      
+      Provider.of<GlobalProvider>(context, listen: false).clearFriendPbs();
+      for (String id in friendIds) {
+        String? url = await ProfilePictureHelper.getProfilePicture(id);
+        Provider.of<GlobalProvider>(context, listen: false).addFriendPb(url);
       }
-      biographyController.text = await BiographyHelper.getBiography(currentUserId!) ?? "";
     });
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+  
+  ImageProvider getPb(int index) {
+    try {
+      return Provider.of<GlobalProvider>(context, listen: false).friendPbs[index];
+    } catch (e) {
+      return const AssetImage('images/user_pb.jpg');
+    }
   }
 
   @override
@@ -263,7 +281,7 @@ class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
                           ),
                         ),
                         leading: CircleAvatar(
-                          backgroundImage: AssetImage('images/user_pb.jpg'),
+                          backgroundImage: getPb(index),
                         ),
                         title: Text(
                           '${user.firstName} ${user.lastName}',

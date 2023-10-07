@@ -1,7 +1,12 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
+import 'package:nightview/models/chat_data.dart';
+import 'package:nightview/models/chat_subscriber.dart';
 import 'package:nightview/models/friend_request_helper.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/screens/night_social/find_new_friends_screen.dart';
@@ -20,15 +25,24 @@ class NightSocialMainScreen extends StatefulWidget {
 }
 
 class _NightSocialMainScreenState extends State<NightSocialMainScreen> {
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? chatsSubscription;
 
   @override
   void initState() {
-
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        checkPending();
-      });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      chatsSubscription = Provider.of<ChatSubscriber>(context, listen: false).subscribeToUsersChats(context);
+      checkPending();
+    });
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    if (chatsSubscription != null) {
+      chatsSubscription!.cancel();
+    }
+    super.dispose();
   }
 
   void checkPending() {
@@ -99,26 +113,40 @@ class _NightSocialMainScreenState extends State<NightSocialMainScreen> {
         Expanded(
           child: ListView.separated(
             padding: EdgeInsets.all(kMainPadding),
-            itemCount: 10,
-            itemBuilder: (context, index) => ListTile(
-              onTap: () {
-                print('Tapped ${index}');
-                Navigator.of(context)
-                    .pushNamed(NightSocialConversationScreen.id);
-              },
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kMainBorderRadius),
-                side: BorderSide(
-                  color: Colors.white,
-                  width: kMainStrokeWidth,
+            itemCount: Provider.of<ChatSubscriber>(context).chats.length,
+            itemBuilder: (context, index) {
+              ChatData chatData = Provider.of<ChatSubscriber>(context, listen: false).chats.values.toList().reversed.toList()[index];
+              String? userId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+
+              if (userId == null) {
+                return null;
+              }
+
+              return ListTile(
+                onTap: () {
+                  Provider.of<GlobalProvider>(context, listen: false).setChosenChatId(chatData.id);
+                  Navigator.of(context).pushNamed(NightSocialConversationScreen.id);
+                },
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(kMainBorderRadius),
+                  side: BorderSide(
+                    color: Colors.white,
+                    width: kMainStrokeWidth,
+                  ),
                 ),
-              ),
-              leading: CircleAvatar(
-                backgroundImage: AssetImage('images/user_pb.jpg'),
-              ),
-              title: Text('Gunnar'),
-              subtitle: Text('Dig: Haha xd'),
-            ),
+                leading: CircleAvatar(
+                  backgroundImage: Provider.of<ChatSubscriber>(context).chatImages[chatData.id],
+                ),
+                title: Text(
+                  chatData.title ?? '',
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(
+                  '${chatData.getReadableTimestamp()} - ${chatData.lastSenderName ?? ''}: ${chatData.lastMessage}',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              );
+            },
             separatorBuilder: (context, index) => SizedBox(
               height: kSmallSpacerValue,
             ),

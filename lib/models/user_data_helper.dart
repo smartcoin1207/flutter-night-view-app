@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:nightview/constants/enums.dart';
 import 'package:nightview/constants/values.dart';
 // import 'package:nightview/models/profile_picture_helper.dart';
-import 'package:nightview/models/simple_user_data.dart';
 import 'package:nightview/models/user_data.dart';
 
 class UserDataHelper {
@@ -11,12 +10,10 @@ class UserDataHelper {
   final _auth = FirebaseAuth.instance;
 
   Map<String, UserData> userData = {};
-  Map<String, SimpleUserData> simpleUserData = {};
 
   UserDataHelper({Callback<Map<String, UserData>>? onReceive}) {
     _firestore.collection('user_data').snapshots().listen((snap) {
       userData.clear();
-      simpleUserData.clear();
 
       Future.forEach(snap.docs, (user) async {
         try {
@@ -36,11 +33,6 @@ class UserDataHelper {
             partyStatus: stringToPartyStatus(data['party_status'] ?? 'PartyStatus.unsure') ?? PartyStatus.unsure,
             partyStatusTime: data['party_status_time']?.toDate() ?? DateTime(2000),
           );
-          // simpleUserData[user.id] = SimpleUserData(
-          //   firstName: data['first_name'],
-          //   lastName: data['last_name'],
-          //   profilePictureUrl: await ProfilePictureHelper.getProfilePicture(user.id),
-          // );
         } catch (e) {
           print(e);
         }

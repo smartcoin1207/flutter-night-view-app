@@ -36,6 +36,14 @@ class _NewChatScreenState extends State<NewChatScreen> {
     super.initState();
   }
 
+  ImageProvider getPb(int index) {
+    try {
+      return Provider.of<SearchNewChatHelper>(context).filteredFriendPbs[index];
+    } catch (e) {
+      return AssetImage('images/user_pb.jpg');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,7 +121,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
                       ),
                     ),
                     leading: CircleAvatar(
-                      backgroundImage: AssetImage('images/user_pb.jpg'),
+                      backgroundImage: getPb(index),
                     ),
                     title: Text(
                       '${user.firstName} ${user.lastName}',

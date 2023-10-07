@@ -72,6 +72,9 @@ class GlobalProvider extends ChangeNotifier {
   ImageProvider _profilePicture = AssetImage('images/user_pb.jpg');
   UserData? _chosenProfile;
   String? _chosenChatId;
+  ImageProvider _chosenChatPicture = AssetImage('images/user_pb.jpg');
+  String _chosenChatTitle = '';
+  List<ImageProvider> _friendPbs = [];
 
   ClubData get chosenClub => _chosenClub!;
   bool get chosenClubFavoriteLocal => _chosenClubFavoriteLocal;
@@ -86,6 +89,9 @@ class GlobalProvider extends ChangeNotifier {
   ImageProvider get profilePicture => _profilePicture;
   UserData? get chosenProfile => _chosenProfile;
   String? get chosenChatId => _chosenChatId;
+  ImageProvider get chosenChatPicture => _chosenChatPicture;
+  String get chosenChatTitle => _chosenChatTitle;
+  List<ImageProvider> get friendPbs => _friendPbs;
 
   bool get chosenClubFavorite {
     String? userId = userDataHelper.currentUserId;
@@ -161,8 +167,9 @@ class GlobalProvider extends ChangeNotifier {
   void setProfilePicture(String? url) {
     if (url == null) {
       _profilePicture = AssetImage('images/user_pb.jpg');
+    } else {
+      _profilePicture = NetworkImage(url);
     }
-    _profilePicture = NetworkImage(url!);
     notifyListeners();
   }
 
@@ -173,6 +180,38 @@ class GlobalProvider extends ChangeNotifier {
 
   void setChosenChatId(String id) {
     _chosenChatId = id;
+    notifyListeners();
+  }
+
+  void setChosenChatPicture(String? url) {
+    if (url == null) {
+      _chosenChatPicture = AssetImage('images/user_pb.jpg');
+    } else {
+      _chosenChatPicture = NetworkImage(url);
+    }
+    notifyListeners();
+  }
+
+  void setChosenChatTitle(String? newValue) {
+    if (newValue == null) {
+      _chosenChatTitle = '';
+    } else {
+      _chosenChatTitle = newValue;
+    }
+    notifyListeners();
+  }
+
+  void addFriendPb(String? url) {
+    if (url == null) {
+      _friendPbs.add(const AssetImage('images/user_pb.jpg'));
+    } else {
+      _friendPbs.add(NetworkImage(url));
+    }
+    notifyListeners();
+  }
+
+  void clearFriendPbs() {
+    _friendPbs.clear();
     notifyListeners();
   }
 
