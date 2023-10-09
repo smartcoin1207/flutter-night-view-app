@@ -9,7 +9,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 
 class ProfilePictureHelper {
-
   static final ImagePicker _picker = ImagePicker();
 
   static Future<bool> _uploadProfilePicture(File image) async {
@@ -30,19 +29,18 @@ class ProfilePictureHelper {
   }
 
   static Future<File?> _pickImage() async {
-
     final XFile? newPb = await _picker.pickImage(source: ImageSource.gallery);
     return newPb == null ? null : File(newPb.path);
-
   }
 
   static Future<File?> _cropImage(File original) async {
-
     CroppedFile? cropped = await ImageCropper().cropImage(
       sourcePath: original.path,
+      aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
       aspectRatioPresets: [
         CropAspectRatioPreset.square,
       ],
+      cropStyle: CropStyle.circle,
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Vælg billede',
@@ -52,19 +50,26 @@ class ProfilePictureHelper {
           initAspectRatio: CropAspectRatioPreset.square,
           lockAspectRatio: true,
         ),
-        IOSUiSettings(),
-      ]
+        IOSUiSettings(
+          title: 'Vælg billede',
+          doneButtonTitle: 'Fortsæt',
+          cancelButtonTitle: 'Tilbage',
+          aspectRatioPickerButtonHidden: true,
+          resetButtonHidden: true,
+          rotateButtonsHidden: true,
+          aspectRatioLockEnabled: true,
+        ),
+      ],
     );
 
     return cropped == null ? null : File(cropped.path);
-
   }
 
   static Future<File?> _compressImage(File original) async {
     XFile? compressed = await FlutterImageCompress.compressAndGetFile(
       original.absolute.path,
       original.absolute.path + "_compressed.jpg",
-      quality: 88,  // 0-100, lower value means higher compression
+      quality: 88, // 0-100, lower value means higher compression
       format: CompressFormat.jpeg,
     );
 
@@ -73,7 +78,8 @@ class ProfilePictureHelper {
 
   static File _resizeImage(File file, int width, int height) {
     final img.Image originalImage = img.decodeImage(file.readAsBytesSync())!;
-    final img.Image resizedImage = img.copyResize(originalImage, width: width, height: height);
+    final img.Image resizedImage =
+        img.copyResize(originalImage, width: width, height: height);
 
     // Save the resized image to a file
     file.writeAsBytesSync(img.encodeJpg(resizedImage));
@@ -103,11 +109,9 @@ class ProfilePictureHelper {
     }
 
     return _uploadProfilePicture(compressed);
-
   }
 
   static Future<String?> getProfilePicture(String userId) async {
-
     try {
       Reference ref = FirebaseStorage.instance.ref('pb/$userId.jpg');
       String downloadURL = await ref.getDownloadURL();
@@ -116,7 +120,5 @@ class ProfilePictureHelper {
       print("Failed to get the download URL: $e");
       return null;
     }
-
   }
-
 }

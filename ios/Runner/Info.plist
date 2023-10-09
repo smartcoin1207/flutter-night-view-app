@@ -8,6 +8,10 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>NightView</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Access your photo library to set a profile picture. Only the images you choose are uploaded to our servers.</string>
+	<key>NSPrincipalClass</key>
+	<string></string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
