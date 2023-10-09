@@ -4,7 +4,6 @@ import 'package:nightview/constants/enums.dart';
 import 'package:nightview/constants/values.dart';
 import 'package:nightview/models/club_data.dart';
 import 'package:nightview/models/location_helper.dart';
-import 'package:nightview/models/user_data.dart';
 
 class ClubDataHelper {
   final _firestore = FirebaseFirestore.instance;
@@ -21,23 +20,15 @@ class ClubDataHelper {
           clubData[club.id] = ClubData(
               id: club.id,
               name: data['name'],
-              logo: await _storageRef
-                  .child('club_logos/${data['logo']}')
-                  .getDownloadURL(),
+              logo: await _storageRef.child('club_logos/${data['logo']}').getDownloadURL(),
               lat: data['lat'],
               lon: data['lon'],
-              visitors: data['visitors'],
               favorites: data['favorites'],
               corners: data['corners'],
-              offerType:
-                  stringToOfferType(data['offer_type'] ?? 'OfferType.none') ??
-                      OfferType.none,
-              mainOfferImg:
-                  stringToOfferType(data['offer_type']) == OfferType.none
-                      ? null
-                      : await _storageRef
-                          .child('main_offers/${data['main_offer_img']}')
-                          .getDownloadURL());
+              offerType: stringToOfferType(data['offer_type'] ?? 'OfferType.none') ?? OfferType.none,
+              mainOfferImg: stringToOfferType(data['offer_type']) == OfferType.none
+                  ? null
+                  : await _storageRef.child('main_offers/${data['main_offer_img']}').getDownloadURL());
         } catch (e) {
           print(e);
         }
@@ -50,8 +41,7 @@ class ClubDataHelper {
   }
 
   void setFavoriteClub(String clubId, String userId) async {
-    DocumentSnapshot<Map<String, dynamic>> clubDocument =
-        await _firestore.collection('club_data').doc(clubId).get();
+    DocumentSnapshot<Map<String, dynamic>> clubDocument = await _firestore.collection('club_data').doc(clubId).get();
     List<dynamic> favoritesList = clubDocument.data()!['favorites'];
 
     if (favoritesList.contains(userId)) {
@@ -66,8 +56,7 @@ class ClubDataHelper {
   }
 
   void removeFavoriteClub(String clubId, String userId) async {
-    DocumentSnapshot<Map<String, dynamic>> clubDocument =
-        await _firestore.collection('club_data').doc(clubId).get();
+    DocumentSnapshot<Map<String, dynamic>> clubDocument = await _firestore.collection('club_data').doc(clubId).get();
     List<dynamic> favoritesList = clubDocument.data()!['favorites'];
 
     if (!favoritesList.contains(userId)) {
@@ -81,25 +70,31 @@ class ClubDataHelper {
     });
   }
 
-  void evaluateVisitors(
-      {required Map<String, UserData> userData,
-      required LocationHelper locationHelper}) async {
-    clubData.forEach((id, club) {
-      int visitors = 0;
-
-      userData.forEach((id, user) {
-        DateTime timeTreshhold = DateTime.now().subtract(Duration(hours: 1));
-
-        if (user.lastPositionTime != null &&
-            user.lastPositionTime.isAfter(timeTreshhold) &&
-            locationHelper.userInClub(userData: user, clubData: club)) {
-          visitors++;
-        }
-      });
-
-      _firestore.collection('club_data').doc(club.id).update({
-        'visitors': visitors,
-      });
+  Future<void> evaluateVisitors({
+    //required Map<String, UserData> userData,
+    required LocationHelper locationHelper,
+  }) async {
+    // clubData.forEach((id, club) {
+    //   int visitors = 0;
+    //
+    //   userData.forEach((id, user) {
+    //     DateTime timeTreshhold = DateTime.now().subtract(Duration(hours: 1));
+    //
+    //     if (user.lastPositionTime != null &&
+    //         user.lastPositionTime.isAfter(timeTreshhold) &&
+    //         locationHelper.userInClub(userData: user, clubData: club)) {
+    //       visitors++;
+    //     }
+    //   });
+    //
+    //   _firestore.collection('club_data').doc(club.id).update({
+    //     'visitors': visitors,
+    //   });
+    // });
+    final DateTime timeTreshhold = DateTime.now().subtract(Duration(hours: 1));
+    clubData.forEach((clubId, clubData) async {
+      AggregateQuerySnapshot snap = await _firestore.collection('location_data').where('club_id', isEqualTo: clubId).where('latest', isEqualTo: true).where('timestamp', isGreaterThan: Timestamp.fromDate(timeTreshhold)).count().get();
+      clubData.visitors = snap.count;
     });
   }
 
@@ -117,7 +112,6 @@ class ClubDataHelper {
   }
 
   Future<void> deleteDataAssociatedTo(String userId) async {
-
     QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore.collection('club_data').get();
 
     for (QueryDocumentSnapshot<Map<String, dynamic>> club in snapshot.docs) {
@@ -133,9 +127,6 @@ class ClubDataHelper {
       _firestore.collection('club_data').doc(clubId).update({
         'favorites': favoritesData,
       });
-
     }
-
   }
-
 }

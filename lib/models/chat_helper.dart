@@ -89,4 +89,19 @@ class ChatHelper {
 
   }
 
+  // SKAL OVERHAULES, NÅR GRUPPECHATS BLIVER INTRODUCERET!!!
+  static Future<void> deleteDataAssociatedTo(String userId) async {
+    final firestore = FirebaseFirestore.instance;
+
+    try {
+      QuerySnapshot<Map<String, dynamic>> snap = await firestore.collection('chats').where('participants', arrayContains: userId).get();
+      for (DocumentSnapshot doc in snap.docs) {
+        await firestore.collection('chats').doc(doc.id).delete();
+      }
+    } catch (e) {
+      print(e);
+    }
+
+  }
+
 }

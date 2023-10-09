@@ -41,9 +41,6 @@ class _NightMapState extends State<NightMap> {
         Provider.of<GlobalProvider>(context, listen: false)
             .nightMapController
             .move(LatLng(position.latitude, position.longitude), kFarMapZoom);
-        Provider.of<GlobalProvider>(context, listen: false)
-            .updatePositionAndEvaluateVisitors(
-                lat: position.latitude, lon: position.longitude);
       });
     });
   }

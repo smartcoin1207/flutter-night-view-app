@@ -131,4 +131,27 @@ class FriendsHelper {
 
     return filteredUsers;
   }
+
+  static Future<void> deleteDataAssociatedTo(String userId) async {
+    final firestore = FirebaseFirestore.instance;
+
+    try {
+      QuerySnapshot<Map<String, dynamic>> snap = await firestore.collection('friends').where(userId, isEqualTo: true).get();
+      for (DocumentSnapshot doc in snap.docs) {
+        firestore.collection('friends').doc(doc.id).set({userId: false});
+      }
+    } catch (e) {
+      print(e);
+    }
+
+
+
+    try {
+      await firestore.collection('friends').doc(userId).delete();
+    } catch (e) {
+      print(e);
+    }
+
+  }
+
 }

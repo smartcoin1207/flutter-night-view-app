@@ -97,18 +97,24 @@ class FriendRequestHelper {
   }
 
   static Future<void> deleteDataAssociatedTo(String userId) async {
-    QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore.collection('friend_requests').get();
 
-    for (QueryDocumentSnapshot<Map<String, dynamic>> request in snapshot.docs) {
-      String requestId = request.id;
-
-      String fromId = request.get('from').toString();
-      String toId = request.get('to').toString();
-
-      if (fromId == userId || toId == userId) {
-        _firestore.collection('friend_requests').doc(requestId).delete();
+    try {
+      QuerySnapshot<Map<String, dynamic>> snap = await _firestore.collection('friends_requests').where('from', isEqualTo: userId).get();
+      for (DocumentSnapshot doc in snap.docs) {
+        _firestore.collection('friend_requests').doc(doc.id).delete();
       }
+    } catch (e) {
+      print(e);
+    }
 
+
+    try {
+      QuerySnapshot<Map<String, dynamic>> snap = await _firestore.collection('friends_requests').where('to', isEqualTo: userId).get();
+      for (DocumentSnapshot doc in snap.docs) {
+        _firestore.collection('friend_requests').doc(doc.id).delete();
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -135,4 +141,7 @@ class FriendRequestHelper {
         return FriendRequestStatus.rejected;
     }
   }
+
+
+
 }

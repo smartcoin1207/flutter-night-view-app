@@ -19,12 +19,10 @@ class RegistrationAuthenticationScreen extends StatefulWidget {
   const RegistrationAuthenticationScreen({super.key});
 
   @override
-  State<RegistrationAuthenticationScreen> createState() =>
-      _RegistrationAuthenticationScreenState();
+  State<RegistrationAuthenticationScreen> createState() => _RegistrationAuthenticationScreenState();
 }
 
-class _RegistrationAuthenticationScreenState
-    extends State<RegistrationAuthenticationScreen> {
+class _RegistrationAuthenticationScreenState extends State<RegistrationAuthenticationScreen> {
   final _formKey = GlobalKey<FormState>();
   final mailHelper = MailHelper();
   final phoneInputController = TextEditingController();
@@ -129,17 +127,14 @@ class _RegistrationAuthenticationScreenState
                   }
                   if (valid) {
                     bool mailExistsAlready =
-                        Provider.of<GlobalProvider>(context, listen: false)
-                            .userDataHelper
-                            .doesMailExist(mail: mailInputController.text);
+                        Provider.of<GlobalProvider>(context, listen: false).userDataHelper.doesMailExist(mail: mailInputController.text);
                     if (mailExistsAlready) {
                       await showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
                           title: Text('Ugyldig mail'),
                           content: SingleChildScrollView(
-                            child: Text(
-                                'Denne mail bliver brugt af en anden bruger.'),
+                            child: Text('Denne mail bliver brugt af en anden bruger.'),
                           ),
                           actions: [
                             TextButton(
@@ -155,17 +150,12 @@ class _RegistrationAuthenticationScreenState
                         ),
                       );
                     } else {
-                      String fullPhoneNumber =
-                          PhoneCountryCode(provider.countryCode).phoneCode! +
-                              phoneInputController.text;
-                      provider.setPhone(fullPhoneNumber);
-                      provider.setMail(mailInputController.text);
+                      String fullPhoneNumber = PhoneCountryCode(provider.countryCode).phoneCode! + phoneInputController.text;
+                      provider.setPhone(fullPhoneNumber.trim());
+                      provider.setMail(mailInputController.text.trim());
                       provider.generateRandomVerificationCode();
-                      mailHelper.sendMail(
-                          verificationCode: provider.verificationCode,
-                          userMail: mailInputController.text);
-                      Navigator.of(context).pushReplacementNamed(
-                          RegistrationConfirmationScreen.id);
+                      mailHelper.sendMail(verificationCode: provider.verificationCode, userMail: mailInputController.text.trim());
+                      Navigator.of(context).pushReplacementNamed(RegistrationConfirmationScreen.id);
                     }
                   }
                 },

@@ -43,6 +43,7 @@ class _RegistrationNameScreenState extends State<RegistrationNameScreen> {
                 decoration: kMainInputDecoration.copyWith(
                   hintText: 'Fornavn(e)',
                 ),
+                textCapitalization: TextCapitalization.words,
                 onChanged: (value) {
                   inputIsFilled[0] = !(value == null || value.isEmpty);
                   provider.setCanContinue(!inputIsFilled.contains(false));
@@ -62,6 +63,7 @@ class _RegistrationNameScreenState extends State<RegistrationNameScreen> {
                 decoration: kMainInputDecoration.copyWith(
                   hintText: 'Efternavn(e)',
                 ),
+                textCapitalization: TextCapitalization.words,
                 onChanged: (value) {
                   inputIsFilled[1] = !(value == null || value.isEmpty);
                   provider.setCanContinue(!inputIsFilled.contains(false));
@@ -86,8 +88,8 @@ class _RegistrationNameScreenState extends State<RegistrationNameScreen> {
                     return;
                   }
                   if (valid) {
-                    provider.setFirstName(firstNameInputController.text);
-                    provider.setLastName(lastNameInputController.text);
+                    provider.setFirstName(firstNameInputController.text.trim());
+                    provider.setLastName(lastNameInputController.text.trim());
                     Navigator.of(context).pushReplacementNamed(RegistrationAgeScreen.id);
                   }
                 },
