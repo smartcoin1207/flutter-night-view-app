@@ -75,7 +75,7 @@ class _RegistrationAuthenticationScreenState extends State<RegistrationAuthentic
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Skriv venligst din mail';
+                          return 'Skriv venligst dit telefonnummer';
                         }
 
                         if (!RegExp(r'^[0-9]+$').hasMatch(value)) {

@@ -44,7 +44,7 @@ const kTransparentButtonStyle = ButtonStyle(
   foregroundColor: MaterialStatePropertyAll(Colors.white),
 );
 
-const kFilledButtonStyle = ButtonStyle(
+ButtonStyle kFilledButtonStyle = ButtonStyle(
   shape: MaterialStatePropertyAll(
     RoundedRectangleBorder(
       borderRadius: BorderRadius.all(
@@ -52,6 +52,11 @@ const kFilledButtonStyle = ButtonStyle(
       ),
     ),
   ),
-  backgroundColor: MaterialStatePropertyAll(primaryColor),
+  backgroundColor: MaterialStateProperty.resolveWith((states) {
+    if (states.contains(MaterialState.disabled)) {
+      return Colors.grey;
+    }
+    return primaryColor;
+  }),
   foregroundColor: MaterialStatePropertyAll(Colors.white),
 );

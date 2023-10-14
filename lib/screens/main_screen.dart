@@ -4,6 +4,7 @@ import 'package:nightview/constants/values.dart';
 import 'package:nightview/models/profile_picture_helper.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/providers/main_navigation_provider.dart';
+import 'package:nightview/screens/balladefabrikken/balladefabrikken_main_screen.dart';
 import 'package:nightview/screens/option_menu/side_sheet_main_screen.dart';
 import 'package:nightview/widgets/main_bottom_navigation_bar.dart';
 import 'package:provider/provider.dart';
@@ -42,8 +43,18 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         // title: Text(Provider.of<MainNavigationProvider>(context)
         //     .currentPageNameAsString),
-        leading: Placeholder(
-          color: Colors.transparent,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.of(context).pushNamed(BalladefabrikkenMainScreen.id);
+          },
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.only(left: kSmallSpacerValue),
+              child: CircleAvatar(
+                backgroundImage: AssetImage('images/bolt_icon.jpg'),
+              ),
+            ),
+          ),
         ),
         title: Center(
           child: SizedBox(

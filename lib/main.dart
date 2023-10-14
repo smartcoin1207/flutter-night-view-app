@@ -5,9 +5,13 @@ import 'package:nightview/firebase_options.dart';
 import 'package:nightview/models/chat_subscriber.dart';
 import 'package:nightview/models/search_new_chat_helper.dart';
 import 'package:nightview/models/search_friends_helper.dart';
+import 'package:nightview/providers/balladefabrikken_provider.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/providers/login_registration_provider.dart';
 import 'package:nightview/providers/main_navigation_provider.dart';
+import 'package:nightview/screens/balladefabrikken/balladefabrikken_main_screen.dart';
+import 'package:nightview/screens/balladefabrikken/shot_accumulation_screen.dart';
+import 'package:nightview/screens/balladefabrikken/shot_redemption_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_always_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_whileinuse_screen.dart';
 import 'package:nightview/screens/location_permission/location_permission_checker_screen.dart';
@@ -69,6 +73,9 @@ class NightViewApp extends StatelessWidget {
         ChangeNotifierProvider<ChatSubscriber>(
           create: (_) => ChatSubscriber(),
         ),
+        ChangeNotifierProvider<BalladefabrikkenProvider>(
+          create: (_) => BalladefabrikkenProvider(),
+        )
       ],
       child: MaterialApp(
         theme: ThemeData.dark().copyWith(
@@ -107,6 +114,9 @@ class NightViewApp extends StatelessWidget {
           FindNewFriendsScreen.id: (context) => const FindNewFriendsScreen(),
           OtherProfileMainScreen.id: (context) => const OtherProfileMainScreen(),
           NewChatScreen.id: (context) => const NewChatScreen(),
+          BalladefabrikkenMainScreen.id: (context) => const BalladefabrikkenMainScreen(),
+          ShotAccumulationScreen.id: (context) => const ShotAccumulationScreen(),
+          ShotRedemtionScreen.id: (context) => const ShotRedemtionScreen(),
         },
       ),
     );
