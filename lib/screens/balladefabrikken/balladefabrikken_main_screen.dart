@@ -5,7 +5,10 @@ import 'package:nightview/constants/button_styles.dart';
 import 'package:nightview/constants/input_decorations.dart';
 import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
+import 'package:nightview/models/share_code_helper.dart';
+import 'package:nightview/models/sms_helper.dart';
 import 'package:nightview/providers/balladefabrikken_provider.dart';
+import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/screens/balladefabrikken/shot_accumulation_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -18,6 +21,8 @@ class BalladefabrikkenMainScreen extends StatefulWidget {
 }
 
 class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen> {
+  final _phoneInputController = TextEditingController();
+  final _codeInputController = TextEditingController();
   final _phoneFormKey = GlobalKey<FormState>();
   final _shotFormKey = GlobalKey<FormState>();
 
@@ -64,6 +69,7 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
                         children: [
                           Expanded(
                             child: TextFormField(
+                              controller: _phoneInputController,
                               decoration: kMainInputDecoration.copyWith(
                                 hintText: 'Indtast telefonnummer',
                               ),
@@ -83,10 +89,40 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
                             width: kSmallSpacerValue,
                           ),
                           FilledButton(
-                            onPressed: () {
+                            onPressed: () async {
                               bool? valid = _phoneFormKey.currentState?.validate();
                               if (valid == null) {
                                 return;
+                              }
+
+                              if (valid) {
+                                String shareCode = await ShareCodeHelper.generateNewShareCode();
+                                bool succes = await SMSHelper.launchSMS(message: ShareCodeHelper.getMessageFromCode(shareCode), phoneNumber: _phoneInputController.text);
+                                if (succes) {
+                                  String? userId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
+                                  if (userId == null || !(await ShareCodeHelper.uploadShareCode(code: shareCode, userId: userId))) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Delekode blev ikke uploadet til skyen. Prøv igen.',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        backgroundColor: Colors.black,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Der skete en fejl under åbning af SMS-applikation',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.black,
+                                    ),
+                                  );
+                                }
                               }
                             },
                             style: kFilledButtonStyle.copyWith(
@@ -122,6 +158,7 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
                         children: [
                           Expanded(
                             child: TextFormField(
+                              controller: _codeInputController,
                               decoration: kMainInputDecoration.copyWith(
                                 hintText: 'Indtast kode',
                               ),
@@ -133,10 +170,6 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
                                 if (!RegExp(r'^[A-Za-z0-9]+$').hasMatch(value)) {
                                   return 'Ugyldig kode';
                                 }
-                                if (false) {
-                                  // Søg efter vennekode
-                                  return 'Vennekode findes ikke';
-                                }
                                 return null;
                               },
                             ),
@@ -145,10 +178,46 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
                             width: kSmallSpacerValue,
                           ),
                           FilledButton(
-                            onPressed: () {
+                            onPressed: () async {
                               bool? valid = _shotFormKey.currentState?.validate();
                               if (valid == null) {
                                 return;
+                              }
+                              if (valid) {
+                                String code = _codeInputController.text;
+                                String? status = await ShareCodeHelper.getStatusOfCode(code);
+                                if (status == 'pending') {
+                                  bool succes = await ShareCodeHelper.sendShot(code);
+                                  String msg = 'Der skete en fejl under indløsning';
+                                  if (succes) {
+                                    msg = 'Du sendte et shot!';
+                                  }
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        msg,
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.black,
+                                    ),
+                                  );
+                                } else {
+                                  String errorMsg = 'Der skete en fejl under indløsning';
+                                  if (status == null) {
+                                    errorMsg = 'Denne kode findes ikke';
+                                  } else if (status == 'accepted' || status == 'redeemed') {
+                                    errorMsg = 'Denne kode er allerede indløst af en anden bruger';
+                                  }
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        errorMsg,
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.black,
+                                    ),
+                                  );
+                                }
                               }
                             },
                             style: kFilledButtonStyle.copyWith(
@@ -201,7 +270,7 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
                     ),
                   ),
                   SizedBox(
-                    height: kBottomSpacerValue,
+                    height: MediaQuery.of(context).viewInsets.bottom > 0 ? kNormalSpacerValue : kBottomSpacerValue,
                   ),
                 ],
               ),
