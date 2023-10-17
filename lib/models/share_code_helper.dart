@@ -105,6 +105,32 @@ Andoid: COMING SOON
 Ha' en go' dag!''';
   }
 
+  static Future<int?> redeemAcceptedCodes() async {
+    final firestore = FirebaseFirestore.instance;
+    final auth = FirebaseAuth.instance;
+
+    String? userId = auth.currentUser?.uid;
+    int count = 0;
+
+    try {
+      QuerySnapshot<Map<String, dynamic>> snap = await firestore.collection('share_codes').where('owner', isEqualTo: userId).where('status', isEqualTo: 'accepted').get();
+      for (DocumentSnapshot doc in snap.docs) {
+        try {
+          doc.reference.update({'status': 'redeemed'});
+          count++;
+        } catch (e) {
+          print(e);
+        }
+      }
+    } catch (e) {
+      print(e);
+      return null;
+    }
+
+    return count;
+
+  }
+
   static String _generateCode(int digits) {
 
     String code = '';

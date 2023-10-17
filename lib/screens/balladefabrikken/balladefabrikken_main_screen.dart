@@ -5,6 +5,7 @@ import 'package:nightview/constants/button_styles.dart';
 import 'package:nightview/constants/input_decorations.dart';
 import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
+import 'package:nightview/models/referral_points_helper.dart';
 import 'package:nightview/models/share_code_helper.dart';
 import 'package:nightview/models/sms_helper.dart';
 import 'package:nightview/providers/balladefabrikken_provider.dart';
@@ -28,8 +29,52 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+
+      int? newRedemtions = await ShareCodeHelper.redeemAcceptedCodes();
+
+      if (newRedemtions == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Der skete en fejl under indlæsning af nye refereringer',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.black,
+          ),
+        );
+      } else if (newRedemtions > 0) {
+        bool succes = await ReferralPointsHelper.incrementReferralPoints(newRedemtions);
+        String msg = 'Der skete en fejl under opdatering af point';
+        if (succes) {
+          msg = 'Du har tjent $newRedemtions point siden sidst. Godt gået!';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              msg,
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.black,
+          ),
+        );
+      }
+
+      int? points = await ReferralPointsHelper.getPointsOfCurrentUser();
+      Provider.of<BalladefabrikkenProvider>(context, listen: false).points = points ?? 0;
       Provider.of<BalladefabrikkenProvider>(context, listen: false).redemtionCount = min(10, Provider.of<BalladefabrikkenProvider>(context, listen: false).points);
+      if (points == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Kunne ikke indlæse optjente point',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.black,
+          ),
+        );
+      }
     });
     super.initState();
   }
