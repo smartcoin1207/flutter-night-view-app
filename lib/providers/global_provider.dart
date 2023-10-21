@@ -12,6 +12,8 @@ import 'package:nightview/models/friends_helper.dart';
 import 'package:nightview/models/location_data.dart';
 import 'package:nightview/models/location_helper.dart';
 import 'package:nightview/models/main_offer_redemptions_helper.dart';
+import 'package:nightview/models/referral_points_helper.dart';
+import 'package:nightview/models/share_code_helper.dart';
 import 'package:nightview/models/user_data.dart';
 import 'package:nightview/models/user_data_helper.dart';
 
@@ -249,6 +251,8 @@ class GlobalProvider extends ChangeNotifier {
       await FriendRequestHelper.deleteDataAssociatedTo(userIdToDelete);
       await FriendsHelper.deleteDataAssociatedTo(userIdToDelete);
       await ChatHelper.deleteDataAssociatedTo(userIdToDelete);
+      await ShareCodeHelper.deleteDataAssociatedTo(userIdToDelete);
+      await ReferralPointsHelper.deleteDataAssociatedTo(userIdToDelete);
     } catch (e) {
       print(e);
       return false;

@@ -55,4 +55,63 @@ class ReferralPointsHelper {
 
   }
 
+  static Future<bool?> getSentStatus() async {
+    final firestore = FirebaseFirestore.instance;
+    final auth = FirebaseAuth.instance;
+
+    String? userId = auth.currentUser?.uid;
+
+    if (userId == null) {
+      return null;
+    }
+
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snap = await firestore.collection('referral_points').doc(userId).get();
+      if (!snap.exists) {
+        return false;
+      }
+      try {
+        return snap.get('sent_status');
+      } catch (e) {
+        return false;
+      }
+    } catch (e) {
+      print(e);
+      return null;
+    }
+
+  }
+
+  static Future<bool> setSentStatus(bool status) async {
+
+    final firestore = FirebaseFirestore.instance;
+    final auth = FirebaseAuth.instance;
+
+    String? userId = auth.currentUser?.uid;
+
+    if (userId == null) {
+      return false;
+    }
+
+    try {
+      await firestore.collection('referral_points').doc(userId).set({'sent_status': status}, SetOptions(merge: true));
+    } catch (e) {
+      print(e);
+      return false;
+    }
+
+    return true;
+
+  }
+
+  static Future<void> deleteDataAssociatedTo(String userId) async {
+    final firestore = FirebaseFirestore.instance;
+    try {
+      await firestore.collection('referral_points').doc(userId).delete();
+    } catch (e) {
+      print(e);
+    }
+
+  }
+
 }

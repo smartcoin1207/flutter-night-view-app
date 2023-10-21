@@ -1,10 +1,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
+import 'package:nightview/models/custom_data_helper.dart';
 import 'package:nightview/models/referral_points_helper.dart';
 import 'package:nightview/providers/balladefabrikken_provider.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +21,6 @@ class ShotRedemtionScreen extends StatefulWidget {
 }
 
 class _ShotRedemtionScreenState extends State<ShotRedemtionScreen> {
-
   Future<void> showSuccesDialog(int shotsRedeemed) async {
     await showDialog(
       context: context,
@@ -30,8 +31,7 @@ class _ShotRedemtionScreenState extends State<ShotRedemtionScreen> {
           style: TextStyle(color: primaryColor),
         ),
         content: SingleChildScrollView(
-          child: Text(
-              'Du indløste ${shotsRedeemed < 10 ? '$shotsRedeemed ${shotsRedeemed == 1 ? 'shot' : 'shots'}' : '1 flaske'}'),
+          child: Text('Du indløste ${shotsRedeemed < 10 ? '$shotsRedeemed ${shotsRedeemed == 1 ? 'shot' : 'shots'}' : '1 flaske'}'),
         ),
         actions: [
           TextButton(
@@ -58,8 +58,7 @@ class _ShotRedemtionScreenState extends State<ShotRedemtionScreen> {
           style: TextStyle(color: Colors.redAccent),
         ),
         content: SingleChildScrollView(
-          child: Text(
-              'Der skete en fejl ved indløsning af shots.\nPrøv igen senere.'),
+          child: Text('Der skete en fejl ved indløsning af shots.\nPrøv igen senere.'),
         ),
         actions: [
           TextButton(
@@ -90,7 +89,21 @@ class _ShotRedemtionScreenState extends State<ShotRedemtionScreen> {
                 aspectRatio: 1.0,
                 child: Stack(
                   children: [
-                    Placeholder(),
+                    Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('images/balladefabrikken_shots.jpg'),
+                          fit: BoxFit.cover,
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(kMainBorderRadius),
+                        ),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: kFocussedStrokeWidth,
+                        ),
+                      ),
+                    ),
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
@@ -130,7 +143,8 @@ class _ShotRedemtionScreenState extends State<ShotRedemtionScreen> {
                   if (succes) {
                     await showSuccesDialog(redemtionCount);
                     Provider.of<BalladefabrikkenProvider>(context, listen: false).points -= redemtionCount;
-                    Provider.of<BalladefabrikkenProvider>(context, listen: false).redemtionCount = min(10, Provider.of<BalladefabrikkenProvider>(context, listen: false).points);
+                    Provider.of<BalladefabrikkenProvider>(context, listen: false).redemtionCount =
+                        min(10, Provider.of<BalladefabrikkenProvider>(context, listen: false).points);
                   } else {
                     await showErrorDialog();
                   }
@@ -142,10 +156,33 @@ class _ShotRedemtionScreenState extends State<ShotRedemtionScreen> {
               ),
               SizedBox(
                 height: kBottomSpacerValue,
-                child: Text(
-                  'VIGTIGT:\nVis til personalet at du indløser shots.\nEllers er indløsningen ugyldig!',
-                  textAlign: TextAlign.center,
-                  style: kTextStyleP1,
+                child: Column(
+                  children: [
+                    FutureBuilder(
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Text(
+                            'Shots kan indløses ved:\n${snapshot.data}',
+                            textAlign: TextAlign.center,
+                            style: kTextStyleP1,
+                          );
+                        } else {
+                          return SpinKitPouringHourGlass(
+                            color: primaryColor,
+                          );
+                        }
+                      },
+                      future: CustomDataHelper.getBalladeFabrikkenCertifiedAsString(),
+                    ),
+                    SizedBox(
+                      height: kNormalSpacerValue,
+                    ),
+                    Text(
+                      'VIGTIGT:\nVis til personalet at du indløser shots.\nEllers er indløsningen ugyldig!',
+                      textAlign: TextAlign.center,
+                      style: kTextStyleP1,
+                    ),
+                  ],
                 ),
               ),
             ],

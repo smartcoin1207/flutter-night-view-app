@@ -144,4 +144,18 @@ Ha' en go' dag!''';
 
   }
 
+  static Future<void> deleteDataAssociatedTo(String userId) async {
+    final firestore = FirebaseFirestore.instance;
+
+    try {
+      QuerySnapshot<Map<String, dynamic>> snap = await firestore.collection('share_codes').where('owner', isEqualTo: userId).get();
+      for (DocumentSnapshot doc in snap.docs) {
+        await doc.reference.delete();
+      }
+    } catch (e) {
+      print(e);
+    }
+
+  }
+
 }

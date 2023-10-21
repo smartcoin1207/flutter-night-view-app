@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:nightview/constants/button_styles.dart';
+import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/input_decorations.dart';
 import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
@@ -29,9 +31,7 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
 
   @override
   void initState() {
-
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-
       int? newRedemtions = await ShareCodeHelper.redeemAcceptedCodes();
 
       if (newRedemtions == null) {
@@ -63,7 +63,8 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
 
       int? points = await ReferralPointsHelper.getPointsOfCurrentUser();
       Provider.of<BalladefabrikkenProvider>(context, listen: false).points = points ?? 0;
-      Provider.of<BalladefabrikkenProvider>(context, listen: false).redemtionCount = min(10, Provider.of<BalladefabrikkenProvider>(context, listen: false).points);
+      Provider.of<BalladefabrikkenProvider>(context, listen: false).redemtionCount =
+          min(10, Provider.of<BalladefabrikkenProvider>(context, listen: false).points);
       if (points == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -78,6 +79,141 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
     });
     super.initState();
   }
+
+  Widget getSendShotWidget(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(kMainPadding),
+            child: Text(
+              'Giv et shot',
+              style: kTextStyleH2,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(kMainPadding),
+            child: Form(
+              key: _shotFormKey,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _codeInputController,
+                      decoration: kMainInputDecoration.copyWith(
+                        hintText: 'Indtast kode',
+                      ),
+                      keyboardType: TextInputType.visiblePassword,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Skriv venligst en kode';
+                        }
+                        if (!RegExp(r'^[A-Za-z0-9]+$').hasMatch(value)) {
+                          return 'Ugyldig kode';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: kSmallSpacerValue,
+                  ),
+                  FilledButton(
+                    onPressed: () async {
+                      bool? valid = _shotFormKey.currentState?.validate();
+                      if (valid == null) {
+                        return;
+                      }
+                      if (valid) {
+                        bool continueAction = false;
+                        await showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => AlertDialog(
+                            title: Text('Er du sikker?'),
+                            content: SingleChildScrollView(
+                              child:
+                                  Text('Du kan kun give én ven et shot. Når du har givet et shot, kan du ikke give flere shots. Vil du fortsætte?'),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  'Nej',
+                                  style: TextStyle(color: Colors.redAccent),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  continueAction = true;
+                                },
+                                child: Text(
+                                  'Ja',
+                                  style: TextStyle(color: primaryColor),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (!continueAction) {
+                          return;
+                        }
+                        String code = _codeInputController.text;
+                        String? status = await ShareCodeHelper.getStatusOfCode(code);
+                        if (status == 'pending') {
+                          bool succes = await ShareCodeHelper.sendShot(code);
+                          await ReferralPointsHelper.setSentStatus(true);
+                          String msg = 'Der skete en fejl under indløsning';
+                          if (succes) {
+                            msg = 'Du sendte et shot!';
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                msg,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: Colors.black,
+                            ),
+                          );
+                        } else {
+                          String errorMsg = 'Der skete en fejl under indløsning';
+                          if (status == null) {
+                            errorMsg = 'Denne kode findes ikke';
+                          } else if (status == 'accepted' || status == 'redeemed') {
+                            errorMsg = 'Denne kode er allerede indløst af en anden bruger';
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                errorMsg,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: Colors.black,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    style: kFilledButtonStyle.copyWith(
+                      fixedSize: MaterialStatePropertyAll(
+                        Size(60.0, 60.0),
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.keyboard_arrow_right,
+                      size: 32,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +278,8 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
 
                               if (valid) {
                                 String shareCode = await ShareCodeHelper.generateNewShareCode();
-                                bool succes = await SMSHelper.launchSMS(message: ShareCodeHelper.getMessageFromCode(shareCode), phoneNumber: _phoneInputController.text);
+                                bool succes = await SMSHelper.launchSMS(
+                                    message: ShareCodeHelper.getMessageFromCode(shareCode), phoneNumber: _phoneInputController.text);
                                 if (succes) {
                                   String? userId = Provider.of<GlobalProvider>(context, listen: false).userDataHelper.currentUserId;
                                   if (userId == null || !(await ShareCodeHelper.uploadShareCode(code: shareCode, userId: userId))) {
@@ -187,97 +324,22 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
                   SizedBox(
                     height: kNormalSpacerValue,
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(kMainPadding),
-                    child: Text(
-                      'Giv et shot',
-                      style: kTextStyleH2,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(kMainPadding),
-                    child: Form(
-                      key: _shotFormKey,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _codeInputController,
-                              decoration: kMainInputDecoration.copyWith(
-                                hintText: 'Indtast kode',
-                              ),
-                              keyboardType: TextInputType.visiblePassword,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Skriv venligst en kode';
-                                }
-                                if (!RegExp(r'^[A-Za-z0-9]+$').hasMatch(value)) {
-                                  return 'Ugyldig kode';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            width: kSmallSpacerValue,
-                          ),
-                          FilledButton(
-                            onPressed: () async {
-                              bool? valid = _shotFormKey.currentState?.validate();
-                              if (valid == null) {
-                                return;
-                              }
-                              if (valid) {
-                                String code = _codeInputController.text;
-                                String? status = await ShareCodeHelper.getStatusOfCode(code);
-                                if (status == 'pending') {
-                                  bool succes = await ShareCodeHelper.sendShot(code);
-                                  String msg = 'Der skete en fejl under indløsning';
-                                  if (succes) {
-                                    msg = 'Du sendte et shot!';
-                                  }
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        msg,
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      backgroundColor: Colors.black,
-                                    ),
-                                  );
-                                } else {
-                                  String errorMsg = 'Der skete en fejl under indløsning';
-                                  if (status == null) {
-                                    errorMsg = 'Denne kode findes ikke';
-                                  } else if (status == 'accepted' || status == 'redeemed') {
-                                    errorMsg = 'Denne kode er allerede indløst af en anden bruger';
-                                  }
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        errorMsg,
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      backgroundColor: Colors.black,
-                                    ),
-                                  );
-                                }
-                              }
-                            },
-                            style: kFilledButtonStyle.copyWith(
-                              fixedSize: MaterialStatePropertyAll(
-                                Size(60.0, 60.0),
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.keyboard_arrow_right,
-                              size: 32,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
+                  FutureBuilder(
+                    future: ReferralPointsHelper.getSentStatus(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        if (snapshot.data == false) {
+                          return getSendShotWidget(context);
+                        } else {
+                          return SizedBox(
+                            height: 0,
+                            width: 0,
+                          );
+                        }
+                      } else {
+                        return SpinKitPouringHourGlass(color: primaryColor);
+                      }
+                    },
                   ),
                 ],
               ),
