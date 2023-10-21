@@ -99,7 +99,7 @@ Du kan give mig et shot, ganske gratis, ved at downloade NightView, trykke på l
 
 $code
 
-IOS: link
+IOS: https://apps.apple.com/dk/app/nightview/id6458585988
 Andoid: COMING SOON
 
 Ha' en go' dag!''';
