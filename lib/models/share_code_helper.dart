@@ -77,7 +77,7 @@ class ShareCodeHelper {
       QuerySnapshot<Map<String, dynamic>> snap = await firestore.collection('share_codes').where('code', isEqualTo: code).get();
       for (DocumentSnapshot doc in snap.docs) {
         if (doc.get('owner') == userId) {
-          continue;
+          return false;
         }
         doc.reference.update({
           'status': 'accepted',

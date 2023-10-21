@@ -165,10 +165,10 @@ class _BalladefabrikkenMainScreenState extends State<BalladefabrikkenMainScreen>
                         String? status = await ShareCodeHelper.getStatusOfCode(code);
                         if (status == 'pending') {
                           bool succes = await ShareCodeHelper.sendShot(code);
-                          await ReferralPointsHelper.setSentStatus(true);
                           String msg = 'Der skete en fejl under indløsning';
                           if (succes) {
                             msg = 'Du sendte et shot!';
+                            await ReferralPointsHelper.setSentStatus(true);
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
