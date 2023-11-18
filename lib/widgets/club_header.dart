@@ -55,49 +55,52 @@ class ClubHeader extends StatelessWidget {
                   FavoriteClubButton(),
                 ],
               ),
-              Row(
-                children: [
-                  // Text(
-                  //   'Kapacitet',
-                  //   style: kTextStyleH3,
-                  // ),
-                  // SizedBox(
-                  //   width: kSmallSpacerValue,
-                  // ),
-                  // CircularPercentIndicator(
-                  //   radius: 25.0,
-                  //   percent: 0.6,
-                  //   center: Text('60%'),
-                  //   progressColor: primaryColor,
-                  //   backgroundColor: Colors.white,
-                  // ),
-                  Text(
-                    'Besøgende',
-                    style: kTextStyleH3,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: kSmallSpacerValue),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(kSubtleBorderRadius),
+              Visibility(
+                visible: backgroundLocationEnabled,
+                child: Row(
+                  children: [
+                    // Text(
+                    //   'Kapacitet',
+                    //   style: kTextStyleH3,
+                    // ),
+                    // SizedBox(
+                    //   width: kSmallSpacerValue,
+                    // ),
+                    // CircularPercentIndicator(
+                    //   radius: 25.0,
+                    //   percent: 0.6,
+                    //   center: Text('60%'),
+                    //   progressColor: primaryColor,
+                    //   backgroundColor: Colors.white,
+                    // ),
+                    Text(
+                      'Besøgende',
+                      style: kTextStyleH3,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: kSmallSpacerValue),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(kSubtleBorderRadius),
+                          ),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: kMainStrokeWidth,
+                          ),
                         ),
-                        border: Border.all(
-                          color: Colors.white,
-                          width: kMainStrokeWidth,
-                        ),
-                      ),
-                      child: Padding(
-                        padding:
-                        const EdgeInsets.symmetric(horizontal: kMainPadding),
-                        child: Text(
-                          club.visitors.toString(),
-                          style: kTextStyleH3,
+                        child: Padding(
+                          padding:
+                          const EdgeInsets.symmetric(horizontal: kMainPadding),
+                          child: Text(
+                            club.visitors.toString(),
+                            style: kTextStyleH3,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

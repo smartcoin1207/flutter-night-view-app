@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/enums.dart';
+import 'package:nightview/constants/values.dart';
 import 'package:nightview/models/chat_helper.dart';
 import 'package:nightview/models/club_data.dart';
 import 'package:nightview/models/club_data_helper.dart';
@@ -54,8 +55,10 @@ class GlobalProvider extends ChangeNotifier {
             }
           });
         }
-        await clubDataHelper.evaluateVisitors(locationHelper: locationHelper);
-        notifyListeners();
+        if (backgroundLocationEnabled) {
+          await clubDataHelper.evaluateVisitors(locationHelper: locationHelper);
+          notifyListeners();
+        }
       },
     );
   }
@@ -247,12 +250,14 @@ class GlobalProvider extends ChangeNotifier {
       await clubDataHelper.deleteDataAssociatedTo(userIdToDelete);
       await locationHelper.deleteDataAssociatedTo(userIdToDelete);
       await mainOfferRedemptionsHelper.deleteDataAssociatedTo(userIdToDelete);
-      await userDataHelper.deleteCurrentUser();
       await FriendRequestHelper.deleteDataAssociatedTo(userIdToDelete);
       await FriendsHelper.deleteDataAssociatedTo(userIdToDelete);
       await ChatHelper.deleteDataAssociatedTo(userIdToDelete);
       await ShareCodeHelper.deleteDataAssociatedTo(userIdToDelete);
       await ReferralPointsHelper.deleteDataAssociatedTo(userIdToDelete);
+
+      // Needs to be last
+      await userDataHelper.deleteCurrentUser();
     } catch (e) {
       print(e);
       return false;

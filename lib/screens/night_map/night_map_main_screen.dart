@@ -92,26 +92,26 @@ class _NightMapMainScreenState extends State<NightMapMainScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: kNormalSpacerValue,
-                  ),
-                  CircularPercentIndicator(
-                    radius: 25.0,
-                    percent: getDecimalValue(
-                      amount: Provider.of<GlobalProvider>(context).partyCount,
-                      fullAmount: Provider.of<GlobalProvider>(context)
-                          .userDataHelper
-                          .userCount,
-                    ),
-                    center: Text('${getPercentValue(
-                      amount: Provider.of<GlobalProvider>(context).partyCount,
-                      fullAmount: Provider.of<GlobalProvider>(context)
-                          .userDataHelper
-                          .userCount,
-                    )}%'),
-                    progressColor: primaryColor,
-                    backgroundColor: Colors.white,
-                  ),
+                  // SizedBox(
+                  //   width: kNormalSpacerValue,
+                  // ),
+                  // CircularPercentIndicator(
+                  //   radius: 25.0,
+                  //   percent: getDecimalValue(
+                  //     amount: Provider.of<GlobalProvider>(context).partyCount,
+                  //     fullAmount: Provider.of<GlobalProvider>(context)
+                  //         .userDataHelper
+                  //         .userCount,
+                  //   ),
+                  //   center: Text('${getPercentValue(
+                  //     amount: Provider.of<GlobalProvider>(context).partyCount,
+                  //     fullAmount: Provider.of<GlobalProvider>(context)
+                  //         .userDataHelper
+                  //         .userCount,
+                  //   )}%'),
+                  //   progressColor: primaryColor,
+                  //   backgroundColor: Colors.white,
+                  // ),
                 ],
               ),
             ],

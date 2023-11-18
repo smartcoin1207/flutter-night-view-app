@@ -40,11 +40,17 @@ class _MyProfileMainScreenState extends State<MyProfileMainScreen> {
       biographyController.text = await BiographyHelper.getBiography(currentUserId!) ?? "";
 
       List<String> friendIds = await FriendsHelper.getAllFriendIds();
-      List<UserData> friends = friendIds
-          .map((id) => Provider.of<GlobalProvider>(context, listen: false)
-              .userDataHelper
-              .userData[id]!)
-          .toList();
+      List<UserData> friends = List.empty(growable: true);
+
+      for (String id in friendIds) {
+        UserData? friend = Provider.of<GlobalProvider>(context, listen: false)
+            .userDataHelper
+            .userData[id];
+        if (friend != null) {
+          friends.add(friend);
+        }
+      }
+
       Provider.of<GlobalProvider>(context, listen: false).setFriends(friends);
       
       Provider.of<GlobalProvider>(context, listen: false).clearFriendPbs();

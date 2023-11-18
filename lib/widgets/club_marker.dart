@@ -18,25 +18,31 @@ class ClubMarker extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: primaryColor,
-              borderRadius: BorderRadius.all(
-                Radius.circular(kSubtleBorderRadius),
+          Visibility(
+            visible: backgroundLocationEnabled,
+            child: Container(
+              decoration: BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(kSubtleBorderRadius),
+                ),
               ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(kSmallPadding),
-              child: Text(
-                visitors.toString(),
-                style: kTextStyleP2.copyWith(
-                  fontWeight: FontWeight.w600,
+              child: Padding(
+                padding: const EdgeInsets.all(kSmallPadding),
+                child: Text(
+                  visitors.toString(),
+                  style: kTextStyleP2.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
           ),
-          SizedBox(
-            height: kSmallSpacerValue,
+          Visibility(
+            visible: backgroundLocationEnabled,
+            child: SizedBox(
+              height: kSmallSpacerValue,
+            ),
           ),
           CircleAvatar(
             backgroundImage: logo,

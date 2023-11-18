@@ -14,30 +14,34 @@ class ClubDataHelper {
     _firestore.collection('club_data').snapshots().listen((snap) {
       clubData.clear();
 
-      Future.forEach(snap.docs, (club) async {
-        try {
-          final data = club.data();
-          clubData[club.id] = ClubData(
-              id: club.id,
-              name: data['name'],
-              logo: await _storageRef.child('club_logos/${data['logo']}').getDownloadURL(),
-              lat: data['lat'],
-              lon: data['lon'],
-              favorites: data['favorites'],
-              corners: data['corners'],
-              offerType: stringToOfferType(data['offer_type'] ?? 'OfferType.none') ?? OfferType.none,
-              mainOfferImg: stringToOfferType(data['offer_type']) == OfferType.none
-                  ? null
-                  : await _storageRef.child('main_offers/${data['main_offer_img']}').getDownloadURL());
-        } catch (e) {
-          print(e);
-        }
-      }).then((value) {
+      List<Future<void>> futures = snap.docs.map((club) => _processClub(club)).toList();
+      Future.wait(futures).then((value) {
         if (onReceive != null) {
           onReceive(clubData);
         }
       });
+
     });
+  }
+
+  Future<void> _processClub(QueryDocumentSnapshot<Map<String, dynamic>> club) async {
+    try {
+      final data = club.data();
+      clubData[club.id] = ClubData(
+          id: club.id,
+          name: data['name'],
+          logo: await _storageRef.child('club_logos/${data['logo']}').getDownloadURL(),
+          lat: data['lat'],
+          lon: data['lon'],
+          favorites: data['favorites'],
+          corners: data['corners'],
+          offerType: stringToOfferType(data['offer_type'] ?? 'OfferType.none') ?? OfferType.none,
+          mainOfferImg: stringToOfferType(data['offer_type']) == OfferType.none
+              ? null
+              : await _storageRef.child('main_offers/${data['main_offer_img']}').getDownloadURL());
+    } catch (e) {
+      print(e);
+    }
   }
 
   void setFavoriteClub(String clubId, String userId) async {

@@ -49,7 +49,7 @@ class LocationHelper {
     }
   }
 
-  Future<void> startLocationService() async {
+  Future<void> startBackgroundLocationService() async {
     DateTime lastUpdate = DateTime.now();
 
     locationService.onLocationChanged.listen((loc.LocationData location) {
@@ -61,6 +61,20 @@ class LocationHelper {
         onPositionUpdate(location);
       }
     });
+  }
+
+  Future<void> startLocationService() async {
+
+    Timer.periodic(Duration(minutes: 10), (timer) async {
+      try {
+        loc.LocationData location = await locationService.getLocation();
+        onPositionUpdate(location);
+        print("Tried to upload");
+      } catch (e) {
+        print('Could not get location');
+      }
+    });
+
   }
 
   Future<loc.LocationData> getBackgroundLocation() async {
