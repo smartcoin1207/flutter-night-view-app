@@ -100,7 +100,7 @@ Du kan give mig et shot, ganske gratis, ved at downloade NightView, trykke på l
 $code
 
 IOS: https://apps.apple.com/dk/app/nightview/id6458585988
-Andoid: COMING SOON
+Android: https://play.google.com/store/apps/details?id=com.nightview.nightview
 
 Ha' en go' dag!''';
   }
