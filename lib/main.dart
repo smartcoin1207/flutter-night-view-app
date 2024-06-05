@@ -37,6 +37,7 @@ import 'package:nightview/screens/profile/other_profile_main_screen.dart';
 import 'package:nightview/screens/swipe/swipe_main_screen.dart';
 import 'package:nightview/screens/utility/waiting_for_login_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:nightview/locations/background_locator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +48,8 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  initializeWorkManager();
+  registerPeriodicTask();
   runApp(NightViewApp());
 }
 

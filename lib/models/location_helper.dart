@@ -63,9 +63,10 @@ class LocationHelper {
     });
   }
 
+
   Future<void> startLocationService() async {
 
-    Timer.periodic(Duration(minutes: 10), (timer) async {
+    Timer.periodic(const Duration(minutes: 10), (timer) async {
       try {
         loc.LocationData location = await locationService.getLocation();
         onPositionUpdate(location);
@@ -74,7 +75,6 @@ class LocationHelper {
         print('Could not get location');
       }
     });
-
   }
 
   Future<loc.LocationData> getBackgroundLocation() async {
