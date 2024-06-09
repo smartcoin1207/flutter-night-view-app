@@ -44,4 +44,5 @@ class UserData {
     return partyStatusTime.isAfter(threshold);
 
   }
+
 }
