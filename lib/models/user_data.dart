@@ -33,7 +33,6 @@ class UserData {
   });
 
   bool answeredStatusToday() {
-
     DateTime now = DateTime.now();
     DateTime threshold = DateTime(now.year, now.month, now.day, kNewDayHour);
 
@@ -42,7 +41,41 @@ class UserData {
     }
 
     return partyStatusTime.isAfter(threshold);
-
   }
 
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'firstName': firstName,
+      'lastName': lastName,
+      'mail': mail,
+      'phone': phone,
+      'birthdayDay': birthdayDay,
+      'birthdayMonth': birthdayMonth,
+      'birthdayYear': birthdayYear,
+      'lastPositionLat': lastPositionLat,
+      'lastPositionLon': lastPositionLon,
+      'lastPositionTime': lastPositionTime.millisecondsSinceEpoch,
+      'partyStatus': partyStatus.toString().split('.').last,
+      'partyStatusTime': partyStatusTime.millisecondsSinceEpoch,
+    };
+  }
+
+  static UserData fromMap(Map<String, dynamic> map) {
+    return UserData(
+      id: map['id'],
+      firstName: map['firstName'],
+      lastName: map['lastName'],
+      mail: map['mail'],
+      phone: map['phone'],
+      birthdayDay: map['birthdayDay'],
+      birthdayMonth: map['birthdayMonth'],
+      birthdayYear: map['birthdayYear'],
+      lastPositionLat: map['lastPositionLat'],
+      lastPositionLon: map['lastPositionLon'],
+      lastPositionTime: DateTime.fromMillisecondsSinceEpoch(map['lastPositionTime']),
+      partyStatus: PartyStatus.values.firstWhere((e) => e.toString() == 'PartyStatus.' + map['partyStatus']),
+      partyStatusTime: DateTime.fromMillisecondsSinceEpoch(map['partyStatusTime']),
+    );
+  }
 }

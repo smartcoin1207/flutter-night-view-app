@@ -222,4 +222,22 @@ class LocationHelper {
       print(e);
     }
   }
+
+  void onPositionUpdate(loc.LocationData location) async { // TODO!
+    final user = await userDataHelper.getCurrentUser();
+    if (user != null) {
+      for (var entry in clubData.entries) {
+        String clubId = entry.key;
+        ClubData club = entry.value;
+
+        if (user.lastPositionTime != null &&
+            locationHelper.userInClub(userData: user, clubData: club)) {
+          await clubDataHelper.updateVisitCount(user.id, clubId);
+        }
+      }
+    }
+  }
+
+}
+
 }
