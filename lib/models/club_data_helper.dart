@@ -15,8 +15,8 @@ class ClubDataHelper {
     _firestore.collection('club_data').snapshots().listen((snap) {
       clubData.clear();
 
-      List<Future<void>> futures = snap.docs.map((club) => _processClub(club))
-          .toList();
+      List<Future<void>> futures =
+      snap.docs.map((club) => _processClub(club)).toList();
       Future.wait(futures).then((value) {
         if (onReceive != null) {
           onReceive(clubData);
@@ -32,17 +32,20 @@ class ClubDataHelper {
       clubData[club.id] = ClubData(
           id: club.id,
           name: data['name'],
-          logo: await _storageRef.child('club_logos/${data['logo']}')
+          logo: await _storageRef
+              .child('club_logos/${data['logo']}')
               .getDownloadURL(),
           lat: data['lat'],
           lon: data['lon'],
           favorites: data['favorites'],
           corners: data['corners'],
-          offerType: stringToOfferType(
-              data['offer_type'] ?? 'OfferType.none') ?? OfferType.none,
+          offerType:
+          stringToOfferType(data['offer_type'] ?? 'OfferType.none') ??
+              OfferType.none,
           mainOfferImg: stringToOfferType(data['offer_type']) == OfferType.none
               ? null
-              : await _storageRef.child('main_offers/${data['main_offer_img']}')
+              : await _storageRef
+              .child('main_offers/${data['main_offer_img']}')
               .getDownloadURL());
     } catch (e) {
       print(e);
@@ -50,8 +53,8 @@ class ClubDataHelper {
   }
 
   void setFavoriteClub(String clubId, String userId) async {
-    DocumentSnapshot<Map<String, dynamic>> clubDocument = await _firestore
-        .collection('club_data').doc(clubId).get();
+    DocumentSnapshot<Map<String, dynamic>> clubDocument =
+    await _firestore.collection('club_data').doc(clubId).get();
     List<dynamic> favoritesList = clubDocument.data()!['favorites'];
 
     if (favoritesList.contains(userId)) {
@@ -66,8 +69,8 @@ class ClubDataHelper {
   }
 
   void removeFavoriteClub(String clubId, String userId) async {
-    DocumentSnapshot<Map<String, dynamic>> clubDocument = await _firestore
-        .collection('club_data').doc(clubId).get();
+    DocumentSnapshot<Map<String, dynamic>> clubDocument =
+    await _firestore.collection('club_data').doc(clubId).get();
     List<dynamic> favoritesList = clubDocument.data()!['favorites'];
 
     if (!favoritesList.contains(userId)) {
@@ -81,78 +84,165 @@ class ClubDataHelper {
     });
   }
 
+  // updates club_visits in Firestore
   Future<void> updateVisitCount(String userId, String clubId) async {
-    // TODO
     final clubVisitRef = _firestore.collection('club_visits').doc(
         '$userId-$clubId');
     final clubVisitDoc = await clubVisitRef.get();
 
     if (clubVisitDoc.exists) {
+      // Document exists, increment the visit count
       final clubVisit = ClubVisit.fromMap(clubVisitDoc.data()!);
       clubVisit.visitCount += 1;
-      await clubVisitRef.update({'visitCount': clubVisit.visitCount});
+      await clubVisitRef.update({'times_visited': clubVisit.visitCount});
     } else {
+      // Document does not exist, create a new one with visit count of 1
       final clubVisit = ClubVisit(
           userId: userId, clubId: clubId, visitCount: 1);
       await clubVisitRef.set(clubVisit.toMap());
     }
+
+    // Update aggregated data in club_data
+    await _updateClubData(clubId, userId,
+        clubVisitDoc.exists ? clubVisitDoc.data()!['times_visited'] + 1 : 1);
   }
 
-  Future<void> evaluateVisitors({ // TODO
-    required LocationHelper locationHelper,
-  }) async {
-    final DateTime timeThreshold = DateTime.now().subtract(Duration(hours: 1));
 
-    for (var entry in clubData.entries) {
-      String clubId = entry.key;
-      ClubData club = entry.value;
+  // prompts updateVisitCount (club_visits in Firestore)
+  Future<void> evaluateVisitors() async {
+    // Fetch all documents from the 'location_data' collection
+    QuerySnapshot locationDataSnapshot = await _firestore.collection(
+        'location_data').get();
 
-      int visitors = 0;
-      int firstTimeVisitors = 0;
-      int returningVisitors = 0;
-      int regularVisitors = 0;
-      String ageOfVisitors = "";
-
-      for (var userEntry in userData.entries) {
-        String userId = userEntry.key;
-        UserData user = userEntry.value;
-
-        if (user.lastPositionTime != null &&
-            user.lastPositionTime!.isAfter(timeThreshold) &&
-            locationHelper.userInClub(userData: user, clubData: club)) {
-          visitors++;
-
-          if (user.birthdayYear != null) {
-            int age = DateTime
-                .now()
-                .year - user.birthdayYear!;
-            ageOfVisitors += "$age, ";
-          }
-
-          if (user.visitCount == 1) {
-            firstTimeVisitors++;
-          } else if (user.visitCount > 1 && user.visitCount < 5) {
-            returningVisitors++;
-          } else if (user.visitCount >= 5) {
-            regularVisitors++;
-          }
-        }
+    for (var locationDoc in locationDataSnapshot.docs) {
+      // Check if the 'processed' field exists, if not, add it and set it to false
+      if (!locationDoc.data().containsKey('processed')) {
+        await locationDoc.reference.update({'processed': false});
       }
 
-      try {
-        // Update the Firestore document
-        await _firestore.collection('club_data').doc(clubId).update({
-          'visitors': visitors,
-          'firstTimeVisitors': firstTimeVisitors,
-          'returningVisitors': returningVisitors,
-          'regularVisitors': regularVisitors,
-          'ageOfVisitors': ageOfVisitors,
-        });
-      } catch (e) {
-        print("Failed to update club data for $clubId: $e");
+      // If the document is not processed, process it
+      if (locationDoc['processed'] == false) {
+        String userId = locationDoc['user_id'];
+        String clubId = locationDoc['club_id'];
+
+        // Update the 'club_visits' collection
+        await updateVisitCount(userId, clubId);
+
+        // Mark the document as processed
+        await locationDoc.reference.update({'processed': true});
       }
     }
   }
+
+  // Updates club_data in Firestore
+  Future<void> _updateClubData(String clubId, String userId,
+      int visitCount) async {
+    final clubDataRef = _firestore.collection('club_data').doc(clubId);
+    final clubDataDoc = await clubDataRef.get();
+
+    if (clubDataDoc.exists) {
+      final clubData = clubDataDoc.data()!;
+      // Ensure the fields exist and initialize them if they don't
+      int firstTimeVisitors = clubData.containsKey('firstTimeVisitors')
+          ? clubData['firstTimeVisitors'] : 0;
+      int returningVisitors = clubData.containsKey('returningVisitors')
+          ? clubData['returningVisitors'] : 0;
+      int regularVisitors = clubData.containsKey('regularVisitors')
+          ? clubData['regularVisitors'] : 0;
+      String ageOfVisitors = clubData.containsKey('ageOfVisitors')
+          ? clubData['ageOfVisitors'] : "";
+      int visitors = clubData.containsKey('visitors')
+          ? clubData['visitors']
+          : 0;
+
+      if (visitCount == 1) {
+        firstTimeVisitors += 1;
+      } else if (visitCount > 1 && visitCount < 5) {
+        returningVisitors += 1;
+      } else if (visitCount >= 5) {
+        regularVisitors += 1;
+      }
+
+      visitors = firstTimeVisitors + returningVisitors + regularVisitors;
+
+      await clubDataRef.update({
+        'visitors': visitors,
+        'firstTimeVisitors': firstTimeVisitors,
+        'returningVisitors': returningVisitors,
+        'regularVisitors': regularVisitors,
+        // 'ageOfVisitors': ageOfVisitors,
+      });
+    } else {
+      // If the document does not exist, create it with initial values
+      await clubDataRef.set({
+        'firstTimeVisitors': visitCount == 1 ? 1 : 0,
+        'returningVisitors': visitCount > 1 && visitCount < 5 ? 1 : 0,
+        'regularVisitors': visitCount >= 5 ? 1 : 0,
+        'ageOfVisitors': "",
+      });
+    }
+
+    // Append the age of the current user
+    DocumentSnapshot userDoc = await _firestore.collection('user_data').doc(
+        userId).get();
+    if (userDoc.exists) {
+      final userData = userDoc.data()!;
+      if (userData['birthdayYear'] != null) {
+        int age = DateTime
+            .now()
+            .year - userData['birthdayYear'];
+        await clubDataRef.update({
+          'ageOfVisitors': "$age, ",
+        }
+      }
+    }
+
+    // Todo Maybe put in a different method
+    await calculateAndUpdatePeakHours(clubId)
+  }
+
+
+  Future<void> resetClubData() async {
+    //TODO needs to be done every day
+    QuerySnapshot clubDataSnapshot = await _firestore.collection('club_data')
+        .get();
+
+    for (var clubDoc in clubDataSnapshot.docs) {
+      await clubDoc.reference.update({
+        'visitors' : 0,
+        'firstTimeVisitors': 0,
+        'returningVisitors': 0,
+        'regularVisitors': 0,
+        'ageOfVisitors': "",
+      });
+    }
+  }
+
+  Future<void> calculateAndUpdatePeakHours(String clubId) async { //TODO
+    // Fetch all documents from the 'location_data' collection for the specific club
+    QuerySnapshot locationDataSnapshot = await _firestore.collection('location_data')
+        .where('club_id', isEqualTo: clubId)
+        .get();
+
+    // Map to track hourly visits for the club
+    Map<int, int> hourlyVisits = {};
+
+    for (var locationDoc in locationDataSnapshot.docs) {
+      DateTime timestamp = (locationDoc['timestamp'] as Timestamp).toDate();
+      int hour = timestamp.hour;
+
+      // Increment the visitor count for the current hour
+      hourlyVisits[hour] = (hourlyVisits[hour] ?? 0) + 1;
+    }
+
+    // Identify and store the peak hour for the club
+    int peakHour = hourlyVisits.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+    final clubDataRef = _firestore.collection('club_data').doc(clubId);
+    await clubDataRef.update({
+      'peakHour': peakHour,
+    });
+  }
+
 
 
   final DateTime timeTreshhold = DateTime.now().subtract(
@@ -163,47 +253,48 @@ class ClubDataHelper {
   (
 
   (clubId, clubData) async {
-  AggregateQuerySnapshot snap = await _firestore.collection(
-  'location_data').where('club_id', isEqualTo: clubId).where(
-  'latest', isEqualTo: true)
-      .where(
-  'timestamp', isGreaterThan: Timestamp.fromDate(timeTreshhold))
+  AggregateQuerySnapshot snap = await _firestore
+      .collection('location_data')
+      .where('club_id', isEqualTo: clubId)
+      .where('latest', isEqualTo: true)
+      .where('timestamp',
+  isGreaterThan: Timestamp.fromDate(timeTreshhold))
       .count()
       .get();
   clubData.visitors = snap.count;
   });
-}
 
-OfferType? stringToOfferType(String str) {
+  OfferType? stringToOfferType(String str) {
   switch (str) {
-    case 'OfferType.none':
-      return OfferType.none;
-    case 'OfferType.alwaysActive':
-      return OfferType.alwaysActive;
-    case 'OfferType.redeemable':
-      return OfferType.redeemable;
-    default:
-      return null;
+  case 'OfferType.none':
+  return OfferType.none;
+  case 'OfferType.alwaysActive':
+  return OfferType.alwaysActive;
+  case 'OfferType.redeemable':
+  return OfferType.redeemable;
+  default:
+  return null;
   }
-}
-
-Future<void> deleteDataAssociatedTo(String userId) async {
-  QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
-      .collection('club_data').get();
-
-  for (QueryDocumentSnapshot<Map<String, dynamic>> club in snapshot.docs) {
-    final String clubId = club.id;
-    final favoritesData = club.get('favorites');
-
-    if (!favoritesData.contains(userId)) {
-      continue;
-    }
-
-    favoritesData.remove(userId);
-
-    _firestore.collection('club_data').doc(clubId).update({
-      'favorites': favoritesData,
-    });
   }
-}
+
+  Future<void> deleteDataAssociatedTo(String userId) async {
+  QuerySnapshot<Map<String, dynamic>> snapshot =
+  await _firestore.collection('club_data').get();
+
+  for (QueryDocumentSnapshot<Map<String, dynamic>> club in snapshot
+      .docs) {
+  final String clubId = club.id;
+  final favoritesData = club.get('favorites');
+
+  if (!favoritesData.contains(userId)) {
+  continue;
+  }
+
+  favoritesData.remove(userId);
+
+  _firestore.collection('club_data').doc(clubId).update({
+  'favorites': favoritesData,
+  });
+  }
+  }
 }
