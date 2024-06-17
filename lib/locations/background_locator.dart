@@ -10,7 +10,7 @@ void callbackDispatcher() {
     if (task == fetchBackground) {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.best);
-locationHelper.startBackgroundLocationService(); // TODO use globalprovider
+locationHelper.startBackgroundLocationService(); // TODO use globalprovider??
       // Perform your background task here (e.g., upload location to server)
       print("Background Location: ${position.latitude}, ${position.longitude}");
     }
@@ -29,6 +29,6 @@ void registerPeriodicTask() {
   Workmanager().registerPeriodicTask(
     "1",
     fetchBackground,
-    frequency: const Duration(minutes:5), // Change the frequency as needed
+    frequency: const Duration(minutes:20), // Change the frequency as needed
   );
 }

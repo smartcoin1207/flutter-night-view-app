@@ -7,6 +7,8 @@ import 'package:nightview/constants/values.dart';
 import 'package:nightview/models/club_data.dart';
 import 'package:nightview/models/location_data.dart';
 import 'package:nightview/models/user_data.dart';
+import 'package:nightview/locations/background_locator.dart';
+import 'package:nightview/models/club_data_helper.dart';
 
 class LocationHelper {
   LocationPermission _permission = LocationPermission.unableToDetermine;
@@ -223,21 +225,20 @@ class LocationHelper {
     }
   }
 
-  void onPositionUpdate(loc.LocationData location) async { // TODO!
-    final user = await userDataHelper.getCurrentUser();
-    if (user != null) {
-      for (var entry in clubData.entries) {
-        String clubId = entry.key;
-        ClubData club = entry.value;
-
-        if (user.lastPositionTime != null &&
-            locationHelper.userInClub(userData: user, clubData: club)) {
-          await clubDataHelper.updateVisitCount(user.id, clubId);
-        }
-      }
-    }
-  }
-
-}
+  // void onPositionUpdate(loc.LocationData location) async { // Not needed anymore?
+  //   final user = await userDataHelper.getCurrentUser();
+  //   if (user != null) {
+  //     for (var entry in clubData.entries) {
+  //       String clubId = entry.key;
+  //       ClubData club = entry.value;
+  //
+  //       if (user.lastPositionTime != null &&
+  //           locationHelper.userInClub(userData: user, clubData: club)) {
+  //         await clubDataHelper.updateVisitCount(user.id, clubId);
+  //       }
+  //     }
+  //   }
+  // }
 
 }
+
