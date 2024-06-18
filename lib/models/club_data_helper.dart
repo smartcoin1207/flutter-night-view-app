@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:nightview/constants/enums.dart';
 import 'package:nightview/constants/values.dart';
-import 'package:nightview/locations/background_locator.dart';
 import 'package:nightview/models/club_data.dart';
 import 'package:nightview/models/location_helper.dart';
 import 'package:nightview/models/club_visit.dart';
@@ -246,6 +245,7 @@ class ClubDataHelper {
     });
   }
 
+  // Not needed for now
   // final DateTime timeTreshhold = DateTime.now().subtract(Duration(hours: 1));
   //
   // clubData.forEach((clubId, clubData) async {

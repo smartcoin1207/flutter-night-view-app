@@ -7,7 +7,6 @@ import 'package:nightview/constants/values.dart';
 import 'package:nightview/models/club_data.dart';
 import 'package:nightview/models/location_data.dart';
 import 'package:nightview/models/user_data.dart';
-import 'package:nightview/locations/background_locator.dart';
 import 'package:nightview/models/club_data_helper.dart';
 
 class LocationHelper {
@@ -55,7 +54,7 @@ class LocationHelper {
     DateTime lastUpdate = DateTime.now();
 
     locationService.onLocationChanged.listen((loc.LocationData location) {
-      DateTime threshold = DateTime.now().subtract(Duration(minutes: 10));
+      DateTime threshold = DateTime.now().subtract(Duration(minutes: 15));
       // DateTime threshold = DateTime.now().subtract(Duration(seconds: 20));
 
       if (threshold.isAfter(lastUpdate)) {
@@ -68,7 +67,7 @@ class LocationHelper {
 
   Future<void> startLocationService() async {
 
-    Timer.periodic(const Duration(minutes: 10), (timer) async {
+    Timer.periodic(const Duration(minutes: 15), (timer) async {
       try {
         loc.LocationData location = await locationService.getLocation();
         onPositionUpdate(location);
@@ -136,7 +135,8 @@ class LocationHelper {
 
     try {
       QuerySnapshot<Map<String, dynamic>> snap =
-          await firestore.collection('location_data').where('user_id', isEqualTo: userId).where('latest', isEqualTo: true).limit(1).get();
+          await firestore.collection('location_data').where('user_id', isEqualTo:
+          userId).where('latest', isEqualTo: true).limit(1).get();
       QueryDocumentSnapshot<Map<String, dynamic>> doc = snap.docs.first;
       return LocationData(
         userId: doc.get('user_id'),

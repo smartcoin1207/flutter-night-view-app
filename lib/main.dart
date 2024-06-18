@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nightview/firebase_options.dart';
+import 'package:nightview/locations/geofencing_service.dart';
 import 'package:nightview/models/chat_subscriber.dart';
 import 'package:nightview/models/search_new_chat_helper.dart';
 import 'package:nightview/models/search_friends_helper.dart';
@@ -37,7 +38,6 @@ import 'package:nightview/screens/profile/other_profile_main_screen.dart';
 import 'package:nightview/screens/swipe/swipe_main_screen.dart';
 import 'package:nightview/screens/utility/waiting_for_login_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:nightview/locations/background_locator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,8 +48,11 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  initializeWorkManager();
-  registerPeriodicTask();
+
+  GeofencingService geofencingService = GeofencingService();
+  geofencingService.initializeWorkManager();
+  geofencingService.registerPeriodicTask();
+
   runApp(NightViewApp());
 }
 
@@ -59,7 +62,7 @@ class NightViewApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<GlobalProvider>(
-          create: (_) => GlobalProvider(),
+          create: (_) => GlobalProvider(), // When is an instance created?
         ),
         ChangeNotifierProvider<MainNavigationProvider>(
           create: (_) => MainNavigationProvider(),
