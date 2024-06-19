@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:nightview/firebase_options.dart';
 import 'package:nightview/locations/geofencing_service.dart';
 import 'package:nightview/models/chat_subscriber.dart';
+import 'package:nightview/models/club_data_helper.dart';
+import 'package:nightview/models/location_helper.dart';
 import 'package:nightview/models/search_new_chat_helper.dart';
 import 'package:nightview/models/search_friends_helper.dart';
 import 'package:nightview/providers/balladefabrikken_provider.dart';

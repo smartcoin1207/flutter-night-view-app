@@ -5,7 +5,6 @@ import 'package:nightview/constants/values.dart';
 import 'package:nightview/models/club_data.dart';
 import 'package:nightview/models/location_helper.dart';
 import 'package:nightview/models/club_visit.dart';
-import 'package:workmanager/workmanager.dart';
 
 class ClubDataHelper {
   final _firestore = FirebaseFirestore.instance;
@@ -88,8 +87,7 @@ class ClubDataHelper {
 
   // updates club_visits in Firestore
   Future<void> updateVisitCount(String userId, String clubId) async {
-    final clubVisitRef =
-    _firestore.collection('club_visits').doc('$userId-$clubId');
+    final clubVisitRef = FirebaseFirestore.instance.collection('club_visits').doc('$userId-$clubId');
     final clubVisitDoc = await clubVisitRef.get();
 
     if (clubVisitDoc.exists) {
@@ -99,14 +97,28 @@ class ClubDataHelper {
       await clubVisitRef.update({'times_visited': clubVisit.visitCount});
     } else {
       // Document does not exist, create a new one with visit count of 1
-      final clubVisit =
-      ClubVisit(userId: userId, clubId: clubId, visitCount: 1);
+      final clubVisit = ClubVisit(userId: userId, clubId: clubId, visitCount: 1);
       await clubVisitRef.set(clubVisit.toMap());
     }
 
-    // Update aggregated data in club_data
-    await _updateClubData(clubId, userId,
-        clubVisitDoc.exists ? clubVisitDoc.data()!['times_visited'] + 1 : 1);
+    // Check if there is a location_data document with latest: true and timestamp within the last 24 hours
+    final now = Timestamp.now();
+    final yesterday = Timestamp.fromMillisecondsSinceEpoch(now.millisecondsSinceEpoch - 86400000);
+
+    final locationDataQuery = await FirebaseFirestore.instance
+        .collection('location_data')
+        .where('user_id', isEqualTo: userId)
+        .where('club_id', isEqualTo: clubId)
+        .where('latest', isEqualTo: true)
+        .where('timestamp', isGreaterThanOrEqualTo: yesterday)
+        .get();
+
+   //need a for loop here?
+    if (locationDataQuery.docs.isNotEmpty) {
+      // If there is such a document, update aggregated data in club_data
+      await _updateClubData(clubId, userId,
+          clubVisitDoc.exists ? clubVisitDoc.data()!['times_visited'] + 1 : 1);
+    }
   }
 
   // prompts updateVisitCount (club_visits in Firestore) TODO Think about LocationHelper here
@@ -118,20 +130,27 @@ class ClubDataHelper {
     for (var locationDoc in locationDataSnapshot.docs) {
       // Check if the 'processed' field exists, if not, add it and set it to false
       final data = locationDoc.data() as Map<String, dynamic>;
+      bool processed = data['processed'] ?? false;
+
       if (!data.containsKey('processed') || data['processed'] == null) {
         await locationDoc.reference.update({'processed': false});
       }
 
       // If the document is not processed, process it
-      if (locationDoc['processed'] == false) {
-        String userId = locationDoc['user_id'];
-        String clubId = locationDoc['club_id'];
+      if (!processed) {
+        String userId = data['user_id'];
+        String clubId = data['club_id'];
 
-        // Update the 'club_visits' collection
-        await updateVisitCount(userId, clubId);
+        // Check if 'user_id' and 'club_id' fields exist before processing
+        if (userId != null && clubId != null) {
+          // Update the 'club_visits' collection
+          await updateVisitCount(userId, clubId);
 
-        // Mark the document as processed
-        await locationDoc.reference.update({'processed': true});
+          // Mark the document as processed
+          await locationDoc.reference.update({'processed': true});
+        } else {
+          print('Error: Missing user_id or club_id in document ${locationDoc.id}');
+        }
       }
     }
   }
@@ -244,6 +263,47 @@ class ClubDataHelper {
       'peakHour': peakHour,
     });
   }
+
+
+//TODO upgrade calculatePeakHours:
+//   Future<void> calculateAndUpdatePeakHours(String clubId) async {
+//     Fetch all documents from the 'location_data' collection for the specific club
+    // QuerySnapshot locationDataSnapshot = await FirebaseFirestore.instance
+    //     .collection('location_data')
+    //     .where('club_id', isEqualTo: clubId)
+    //     .get();
+    //
+    // Map to track hourly visits for the club
+    // Map<int, int> hourlyVisits = {};
+
+    // for (var locationDoc in locationDataSnapshot.docs) {
+    //   DateTime timestamp = (locationDoc['timestamp'] as Timestamp).toDate();
+    //   int hour = timestamp.hour;
+    //
+    //   Increment the visitor count for the current hour
+      // hourlyVisits[hour] = (hourlyVisits[hour] ?? 0) + 1;
+    // }
+    //
+    // Identify and store the top 3 peak hours for the club
+    // List<int> top3Hours = hourlyVisits.entries
+    //     .toList()
+    //     .sort((a, b) => b.value.compareTo(a.value))  // Sort by number of visits, descending
+    //     .take(3)  // Take the top 3 hours
+    //     .map((entry) => entry.key)
+    //     .toList();
+    //
+    // Format the top 3 peak hours as HH-HH
+    // String formattedPeakHours = top3Hours.map((hour) => hour.toString().padLeft(2, '0')).join('-');
+    //
+    // Update Firestore with the formatted peak hours
+    // final clubDataRef = FirebaseFirestore.instance.collection('club_data').doc(clubId);
+    // await clubDataRef.update({
+    //   'peakHours': formattedPeakHours,
+    // });
+  // }
+
+
+
 
   // Not needed for now
   // final DateTime timeTreshhold = DateTime.now().subtract(Duration(hours: 1));

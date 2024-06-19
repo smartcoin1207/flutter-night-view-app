@@ -11,7 +11,7 @@ import 'package:nightview/models/club_data_helper.dart';
 
 class LocationHelper {
   LocationPermission _permission = LocationPermission.unableToDetermine;
-  LocationAccuracyStatus _accuracy = LocationAccuracyStatus.unknown;
+  LocationAccuracyStatus _accuracy = LocationAccuracyStatus.precise;
   bool _serviceEnabled = false;
   GeneralAsyncCallback<loc.LocationData> onPositionUpdate;
   loc.Location locationService = loc.Location();

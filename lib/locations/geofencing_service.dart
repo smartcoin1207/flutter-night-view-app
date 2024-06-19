@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:nightview/models/location_data.dart';
+import 'package:nightview/models/location_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -19,8 +22,7 @@ class GeofencingService {
   }
 
   void _initNotifications() {
-    var initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
     var initializationSettingsIOS = DarwinInitializationSettings();
     var initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
@@ -75,6 +77,7 @@ class GeofencingService {
       List corners = data['corners'];
       if (corners != null && corners.length >= 4) {
         geofences.add(Geofence(
+          clubId: doc.id, // Add clubId to Geofence
           corners: corners.map((corner) => GeofenceCorner.fromMap(corner)).toList(),
           center: _calculateCenter(corners),
         ));
@@ -103,15 +106,86 @@ class GeofencingService {
 
       if (distance <= geofence.radius) {
         _showNotification("Du er ankommet på klubben", "Hav en skøn aften!");
+        _handleGeofenceEvent(geofence, true);  // Entering geofence
       } else {
         _showNotification("Du har forladt klubben", "Kom sikkert hjem.");
+        _handleGeofenceEvent(geofence, false);  // Exiting geofence
       }
+    }
+  }
+
+  Future<void> _handleGeofenceEvent(Geofence geofence, bool entering) async {
+    // Assuming you have a method to get the current user ID
+    String userId = await getCurrentUserId();
+    String clubId = geofence.clubId; // Use clubId from Geofence
+    bool isPrivate = false; // Set this based on your app's logic
+    Timestamp timestamp = Timestamp.now();
+
+    LocationData locationData = LocationData(
+      userId: userId,
+      clubId: clubId,
+      private: isPrivate,
+      timestamp: timestamp,
+    );
+
+    bool success = await uploadLocationData(locationData);
+    if (success) {
+      print("Location data uploaded successfully.");
+    } else {
+      print("Failed to upload location data.");
+    }
+  }
+
+  Future<String> getCurrentUserId() async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      return user.uid;
+    } else {
+      throw Exception("No user is currently signed in");
+    }
+  }
+
+
+  // Redundant method
+  Future<bool> uploadLocationData(LocationData locationData) async {
+    final firestore = FirebaseFirestore.instance;
+
+    await _cancelLatestLocationData(locationData.userId);
+
+    try {
+      await firestore.collection('location_data').add({
+        'user_id': locationData.userId,
+        'club_id': locationData.clubId,
+        'private': locationData.private,
+        'timestamp': locationData.timestamp,
+        'latest': true,
+      });
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  Future<bool> _cancelLatestLocationData(String userId) async {
+    final firestore = FirebaseFirestore.instance;
+
+    try {
+      QuerySnapshot<Map<String, dynamic>> snap =
+      await firestore.collection('location_data').where('user_id', isEqualTo: userId).where('latest', isEqualTo: true).get();
+      for (QueryDocumentSnapshot<Map<String, dynamic>> doc in snap.docs) {
+        await firestore.collection('location_data').doc(doc.id).set({'latest': false}, SetOptions(merge: true));
+      }
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
     }
   }
 
   Future<void> _showNotification(String title, String body) async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'your channel id', 'your channel name, your channel description',
+        'your channel id', 'your channel name',
         importance: Importance.max, priority: Priority.high, showWhen: false);
     var iOSPlatformChannelSpecifics = DarwinNotificationDetails();
     var platformChannelSpecifics = NotificationDetails(
