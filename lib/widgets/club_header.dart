@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart'; // For formatting DateTime
+import 'package:intl/intl.dart';
 import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
@@ -16,13 +16,13 @@ class ClubHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String currentWeekday =
-        DateFormat('EEEE').format(DateTime.now()).toLowerCase();
+    DateFormat('EEEE').format(DateTime.now()).toLowerCase();
     final Map<String, dynamic>? todayHours =
-        club.openingHours[currentWeekday] as Map<String, dynamic>?;
+    club.openingHours[currentWeekday] as Map<String, dynamic>?;
 
     String openingHoursText;
     if (todayHours == null || todayHours.isEmpty) {
-      openingHoursText = 'Åbningstider i dag: Lukket'; // Closed today
+      openingHoursText = 'Åbningstider i dag: Lukket';
     } else {
       final String openTime = todayHours['open'] ?? '00:00';
       final String closeTime = todayHours['close'] ?? '00:00';
@@ -43,36 +43,44 @@ class ClubHeader extends StatelessWidget {
       ),
       child: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: FaIcon(
-                  FontAwesomeIcons.chevronDown,
-                  size: 30.0,
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: FaIcon(
+                    FontAwesomeIcons.chevronDown,
+                    size: 30.0,
+                  ),
                 ),
               ),
             ),
-            Text(
-              club.name,
-              style: kTextStyleH1,
-              textAlign: TextAlign.center,
+            Center(
+              child: Text(
+                club.name,
+                style: kTextStyleH1,
+                textAlign: TextAlign.center,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: kMainPadding),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(club.logo),
-                    radius: 25.0,
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: NetworkImage(club.logo),
+                        radius: 25.0,
+                      ),
+                      const SizedBox(width: kNormalSpacerValue),
+                      const FavoriteClubButton(),
+                    ],
                   ),
-                  const SizedBox(width: kNormalSpacerValue),
-                  const FavoriteClubButton(),
                   CircularPercentIndicator(
                     radius: 30.0,
                     lineWidth: 5.0,
@@ -93,28 +101,33 @@ class ClubHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Type: ${club.typeOfClub}',
+                    club.typeOfClub,
                     style: kTextStyleH3,
                   ),
                   Text(
-                    'Aldersgrænse: ${club.ageRestriction}+',
+                    // 'Aldersgrænse: '
+                        '${club.ageRestriction}+',
                     style: kTextStyleH3,
                   ),
                   Text(
                     openingHoursText,
                     style: kTextStyleH3,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(club.rating, (index) {
-                      return const Icon(
-                        Icons.star,
-                        color: secondaryColor,
-                        size: 20.0,
-                      );
-                    }),
-                  ),
                 ],
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 4.0,
+                children: List.generate(6, (index) {
+                  return Icon(
+                    index < club.rating ? Icons.star : Icons.star_border,
+                    color: index < club.rating ? secondaryColor : primaryColor,
+                    size: 20.0,
+                  );
+                }),
               ),
             ),
             Padding(

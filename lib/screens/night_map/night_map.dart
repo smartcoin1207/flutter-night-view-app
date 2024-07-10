@@ -110,7 +110,7 @@ class _NightMapState extends State<NightMap> {
       context: context,
       initHeight: 0.3,
       minHeight: 0,
-      maxHeight: club.offerType == OfferType.none ? 0.3 : 1,
+      maxHeight: 1, // club.offerType == OfferType.none ? 0.3 : 1,
       headerHeight: 200.0,
       isSafeArea: false,
       bottomSheetColor: Colors.transparent,
@@ -121,9 +121,7 @@ class _NightMapState extends State<NightMap> {
         club: club,
       ),
       bodyBuilder: (context, offset) => SliverChildListDelegate(
-        club.offerType == OfferType.none
-            ? []
-            : [
+        club.offerType == OfferType.none ? [] : [
                 Container(
                   alignment: Alignment.topCenter,
                   child: Text(
