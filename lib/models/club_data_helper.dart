@@ -26,32 +26,54 @@ class ClubDataHelper {
     });
   }
 
-  Future<void> _processClub(
-      QueryDocumentSnapshot<Map<String, dynamic>> club) async {
+  Future<void> _processClub(QueryDocumentSnapshot<Map<String, dynamic>> club) async {
     try {
       final data = club.data();
+
+      final logoUrl = await _storageRef.child('club_logos/${data['logo']}').getDownloadURL();
+      final mainOfferImgUrl = stringToOfferType(data['offer_type']) == OfferType.none
+          ? null
+          : await _storageRef.child('main_offers/${data['main_offer_img']}').getDownloadURL();
+
+      final corners = (data['corners'] as List).map((geoPoint) {
+        final point = geoPoint as GeoPoint;
+        return {'latitude': point.latitude, 'longitude': point.longitude};
+      }).toList();
+
+      // Handle opening_hours null values properly
+      final openingHours = (data['opening_hours'] as Map<String, dynamic>).map((day, hours) {
+        if (hours == null) {
+          return MapEntry(day, <String, String>{});
+        } else {
+          return MapEntry(day, Map<String, String>.from(hours));
+        }
+      });
+
       clubData[club.id] = ClubData(
         id: club.id,
         name: data['name'],
-        logo: await _storageRef
-            .child('club_logos/${data['logo']}')
-            .getDownloadURL(),
+        logo: logoUrl,
         lat: data['lat'],
         lon: data['lon'],
-        favorites: data['favorites'],
-        corners: data['corners'],
-        offerType: stringToOfferType(data['offer_type'] ?? 'OfferType.none') ??
-            OfferType.none,
-        mainOfferImg: stringToOfferType(data['offer_type']) == OfferType.none
-            ? null
-            : await _storageRef
-            .child('main_offers/${data['main_offer_img']}')
-            .getDownloadURL(),
+        favorites: List<String>.from(data['favorites']),
+        corners: corners,
+        offerType: stringToOfferType(data['offer_type'] ?? 'OfferType.none') ?? OfferType.none,
+        mainOfferImg: mainOfferImgUrl,
+        ageRestriction: data['age_restriction'],
+        typeOfClub: data['type_of_club'],
+        rating: data['rating'],
+        openingHours: openingHours,
+        visitors: data['visitors'],
+        totalPossibleAmountOfVisitors: data['total_possible_amount_of_visitors'],
       );
+
+      print('Club processed successfully: ${clubData[club.id]}');
     } catch (e) {
-      print(e);
+      print('Error processing club: $e');
     }
   }
+
+
 
   void setFavoriteClub(String clubId, String userId) async {
     DocumentSnapshot<Map<String, dynamic>> clubDocument =
@@ -254,13 +276,13 @@ class ClubDataHelper {
     }
 
     // Identify and store the peak hour for the club
-    int peakHour =
+    int peakHours =
         hourlyVisits.entries
             .reduce((a, b) => a.value > b.value ? a : b)
             .key;
     final clubDataRef = _firestore.collection('club_data').doc(clubId);
     await clubDataRef.update({
-      'peakHour': peakHour,
+      'peakHours': peakHours,
     });
   }
 
