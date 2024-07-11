@@ -99,7 +99,7 @@ class _RateClubState extends State<RateClub>
       if (DateTime
           .now()
           .difference(lastVisit)
-          .inDays <= 1) {
+          .inDays <= 100) {
         canRate = true;
       }
     }
