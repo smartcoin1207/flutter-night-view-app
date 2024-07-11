@@ -108,10 +108,10 @@ class _NightMapState extends State<NightMap> {
   void showClubSheet({required ClubData club}) {
     showStickyFlexibleBottomSheet(
       context: context,
-      initHeight: 0.3,
+      initHeight: 0.35, // maybe more?
       minHeight: 0,
       maxHeight: 1, // club.offerType == OfferType.none ? 0.3 : 1,
-      headerHeight: 200.0,
+      headerHeight: 315,
       isSafeArea: false,
       bottomSheetColor: Colors.transparent,
       decoration: BoxDecoration(

@@ -1,0 +1,251 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:nightview/constants/colors.dart';
+import '../models/rating.dart';
+
+class RateClub extends StatefulWidget {
+  final String clubId;
+
+  RateClub({required this.clubId});
+
+  @override
+  _RateClubState createState() => _RateClubState();
+}
+
+class _RateClubState extends State<RateClub>
+    with SingleTickerProviderStateMixin {
+  int clubRating = 0;
+  String clubName = "";
+  User? _currentUser;
+  bool _canRate = false;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _moveAnimation;
+  late Animation<Color?> _colorAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchClubData();
+    _getCurrentUser();
+    _checkLocationAndRatingPermission();
+
+    // Initialize AnimationController
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 1),
+    )
+      ..repeat(reverse: true);
+
+    // Define scale animation
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.0000001).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    // Define move animation
+    _moveAnimation = Tween<double>(begin: 0.0, end: -10.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    // Define color animation
+    _colorAnimation =
+        ColorTween(begin: secondaryColor, end: primaryColor).animate(
+          CurvedAnimation(
+              parent: _animationController, curve: Curves.easeInOut),
+        );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _getCurrentUser() {
+    _currentUser = FirebaseAuth.instance.currentUser;
+  }
+
+  Future<void> _fetchClubData() async {
+    DocumentSnapshot clubDoc = await FirebaseFirestore.instance
+        .collection('club_data')
+        .doc(widget.clubId)
+        .get();
+    if (clubDoc.exists && clubDoc.data() != null) {
+      setState(() {
+        clubRating = clubDoc['rating'];
+        clubName = clubDoc['name']; // Fetch the club name
+      });
+    }
+  }
+
+  Future<void> _checkLocationAndRatingPermission() async {
+    // Fetch location data for the user
+    DocumentSnapshot locationDoc = await FirebaseFirestore.instance
+        .collection('location_data')
+        .doc(_currentUser!.uid)
+        .get();
+    DocumentSnapshot ratingDoc = await FirebaseFirestore.instance
+        .collection('club_data')
+        .doc(widget.clubId)
+        .collection('ratings')
+        .doc(_currentUser!.uid)
+        .get();
+
+    bool canRate = false;
+    if (locationDoc.exists && locationDoc.data() != null) {
+      DateTime lastVisit = locationDoc['lastVisit'].toDate();
+      // Check if the last visit was recent (e.g., within the past 24 hours)
+      if (DateTime
+          .now()
+          .difference(lastVisit)
+          .inDays <= 1) {
+        canRate = true;
+      }
+    }
+
+    if (ratingDoc.exists && ratingDoc.data() != null) {
+      DateTime lastRating = ratingDoc['timestamp'].toDate();
+      // Check if the last rating was at least a month ago
+      if (DateTime
+          .now()
+          .difference(lastRating)
+          .inDays < 30) {
+        canRate = false;
+      }
+    }
+
+    setState(() {
+      _canRate = canRate;
+      // _canRate = true; //TEST
+    });
+  }
+
+  void _rateClub(int rating) async {
+    if (_currentUser == null) {
+      // Handle unauthenticated user case
+      return;
+    }
+
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Bekræft bedømmelse'),
+          content:
+          Text('Vil du give $clubName en bedømmelse på $rating stjerner?'),
+          backgroundColor: Colors.black,
+          titleTextStyle: TextStyle(color: primaryColor, fontSize: 20),
+          contentTextStyle: TextStyle(color: Colors.white),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text('Fortryd', style: TextStyle(color: Colors.redAccent)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: Text('Fortsæt', style: TextStyle(color: primaryColor)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      Rating ratingObj = Rating(
+        userId: _currentUser!.uid,
+        clubId: widget.clubId,
+        rating: rating,
+        timestamp: Timestamp.now(),
+      );
+      await addRating(ratingObj);
+      await _fetchClubData(); // Refresh club rating from the database
+    }
+  }
+
+  Future<void> addRating(Rating rating) async {
+    DocumentReference clubDoc =
+    FirebaseFirestore.instance.collection('club_data').doc(widget.clubId);
+    CollectionReference ratings = clubDoc.collection('ratings');
+    await ratings.add(rating.toMap());
+
+    // Calculate new average rating
+    QuerySnapshot ratingsSnapshot = await ratings.get();
+    int totalRating = 0;
+    for (var doc in ratingsSnapshot.docs) {
+      totalRating += (doc['rating'] as num).toInt();
+    }
+    int newRating = (totalRating / ratingsSnapshot.docs.length).round();
+
+    // Update club rating
+    await clubDoc.update({'rating': newRating});
+  }
+
+  Widget _buildStar(int index) {
+    bool highlightStar = _canRate;
+
+    return GestureDetector(
+      onTap: () {
+        if (_canRate) {
+          _rateClub(index + 1);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Du har allerede bedømt $clubName for nylig.',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            backgroundColor: Colors.black,
+            duration: Duration(seconds: 2),
+          )
+        ,
+        );
+      }
+      },
+      child: AnimatedBuilder(
+        animation: _animationController,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(0, highlightStar ? _moveAnimation.value : 0),
+            child: Transform.scale(
+              scale: highlightStar ? _scaleAnimation.value : 1.0,
+              child: Stack(
+                children: [
+                  Icon(
+                    Icons.star_border,
+                    color: Colors.amber, // Golden outline color
+                    size: 35,
+                  ),
+                  Icon(
+                    index < clubRating ? Icons.star : Icons.star_border,
+                    color: index < clubRating ? secondaryColor : primaryColor,
+                    size: 35,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 4.0,
+        children: List.generate(6, (index) {
+          return _buildStar(index);
+        }),
+      ),
+    );
+  }
+}

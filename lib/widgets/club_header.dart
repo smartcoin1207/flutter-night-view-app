@@ -7,6 +7,7 @@ import 'package:nightview/constants/values.dart';
 import 'package:nightview/models/club_data.dart';
 import 'package:nightview/widgets/favorite_club_button.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:nightview/widgets/rate_club.dart';
 
 class ClubHeader extends StatelessWidget {
   final ClubData club;
@@ -105,8 +106,7 @@ class ClubHeader extends StatelessWidget {
                     style: kTextStyleH3,
                   ),
                   Text(
-                    // 'Aldersgrænse: '
-                        '${club.ageRestriction}+',
+                    '${club.ageRestriction}+',
                     style: kTextStyleH3,
                   ),
                   Text(
@@ -116,20 +116,7 @@ class ClubHeader extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(
-              width: double.infinity,
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 4.0,
-                children: List.generate(6, (index) {
-                  return Icon(
-                    index < club.rating ? Icons.star : Icons.star_border,
-                    color: index < club.rating ? secondaryColor : primaryColor,
-                    size: 20.0,
-                  );
-                }),
-              ),
-            ),
+            RateClub(clubId: club.id),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: kMainPadding),
               child: Divider(

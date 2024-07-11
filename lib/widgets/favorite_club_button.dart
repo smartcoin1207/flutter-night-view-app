@@ -18,7 +18,7 @@ class _FavoriteClubButtonState extends State<FavoriteClubButton> {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       GlobalProvider provider =
-          Provider.of<GlobalProvider>(context, listen: false);
+      Provider.of<GlobalProvider>(context, listen: false);
       provider.setChosenClubFavoriteLocal(provider.chosenClubFavorite);
     });
   }
@@ -28,12 +28,12 @@ class _FavoriteClubButtonState extends State<FavoriteClubButton> {
     return GestureDetector(
       onTap: () async {
         GlobalProvider provider =
-            Provider.of<GlobalProvider>(context, listen: false);
+        Provider.of<GlobalProvider>(context, listen: false);
 
         String? userId = provider.userDataHelper.currentUserId;
         String clubId = provider.chosenClub.id;
 
-        if (userId ==  null) {
+        if (userId == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -55,10 +55,14 @@ class _FavoriteClubButtonState extends State<FavoriteClubButton> {
             context: context,
             barrierDismissible: false,
             builder: (context) => AlertDialog(
-              title: Text('Tilføj favorit'),
+              title: Text(
+                'Tilføj favorit',
+                style: TextStyle(color: primaryColor), // Set title color here
+              ),
               content: SingleChildScrollView(
                 child: Text(
-                    'Ved at tilføje en klub som favorit giver du lov til at denne klub/bar sender dig beskeder om deres tilbud.'),
+                  'Ved at tilføje en klub som favorit giver du lov til at denne klub/bar sender dig beskeder om deres tilbud.',
+                ),
               ),
               actions: [
                 TextButton(
@@ -76,7 +80,7 @@ class _FavoriteClubButtonState extends State<FavoriteClubButton> {
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    'OK',
+                    'Fortsæt',
                     style: TextStyle(color: primaryColor),
                   ),
                 ),

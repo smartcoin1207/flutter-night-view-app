@@ -38,6 +38,8 @@ class FirestoreUpdater {
         //LON
         //NAME
 
+        // RATING INSIDE EACH CLUB
+
         // Remove the unwanted attribute
         if (data.containsKey('peak_hour')) {
           data.remove('peak_hour');
