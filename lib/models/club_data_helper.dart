@@ -291,7 +291,7 @@ class ClubDataHelper {
         hourlyVisits.entries.reduce((a, b) => a.value > b.value ? a : b).key;
     final clubDataRef = _firestore.collection('club_data').doc(clubId);
     await clubDataRef.update({
-      'peakHours': peakHours,
+      'peak_hours': peakHours,
     });
   }
 

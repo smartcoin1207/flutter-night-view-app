@@ -69,7 +69,7 @@ class FirestoreUpdater {
     putIfAbsent(data, 'first_time_visitors', 0);
     putIfAbsent(data, 'regular_visitors', 0);
     putIfAbsent(data, 'returning_visitors', 0);
-    putIfAbsent(data, 'peak_hours', '10:00 - 11:00');
+    putIfAbsent(data, 'peak_hours', '10:00 - 10:01');
     putIfAbsent(data, 'type_of_club', 'Klub');
   }
 
