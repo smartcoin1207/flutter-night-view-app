@@ -59,12 +59,12 @@ class FirestoreUpdater {
     // putIfAbsent(data, 'logo', 'hornsleth_0_logo.png');
     // putIfAbsent(data, 'lat', 0);
     // putIfAbsent(data, 'lon', 0);
-    // putIfAbsent(data, 'name', 'Hornsleth');
-    putIfAbsent(data, 'ageRestriction', 10);
-    putIfAbsent(data, 'totalPossibleAmountOfVisitors', 0);
+    // putIfAbsent(data, 'name', 'Klub Klub');
+    putIfAbsent(data, 'age_restriction', 10);
+    putIfAbsent(data, 'total_possible_amount_of_visitors', 0);
     putIfAbsent(data, 'visitors', 0);
     putIfAbsent(data, 'rating', 0);
-    putIfAbsent(data, 'offerType', 'OfferType.none');
+    putIfAbsent(data, 'offer_type', 'OfferType.none');
     putIfAbsent(data, 'age_of_visitors', '');
     putIfAbsent(data, 'first_time_visitors', 0);
     putIfAbsent(data, 'regular_visitors', 0);
@@ -92,6 +92,9 @@ class FirestoreUpdater {
     // Remove the unwanted attribute
 
       data.remove('peakHour');
+      data.remove('ageRestriction');
+      data.remove('offerType');
+      data.remove('totalPossibleAmountOfVisitors');
 
   }
 
