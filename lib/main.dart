@@ -54,7 +54,7 @@ void main() async {
   ]);
 
   FirestoreUpdater firestoreUpdater = FirestoreUpdater();
-  firestoreUpdater.updateFirestoreData();
+  // firestoreUpdater.updateFirestoreData(); // Updates Firestore.
 
   GeofencingService geofencingService = GeofencingService();
   geofencingService.initializeWorkManager();

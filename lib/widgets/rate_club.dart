@@ -131,7 +131,7 @@ class _RateClubState extends State<RateClub>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Bekræft bedømmelse'),
+          title: const Text('Bekræft bedømmelse'),
           content:
           Text('Vil du give $clubName en bedømmelse på $rating stjerner?'),
           backgroundColor: Colors.black,

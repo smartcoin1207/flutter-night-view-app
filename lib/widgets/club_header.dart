@@ -17,9 +17,9 @@ class ClubHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String currentWeekday =
-    DateFormat('EEEE').format(DateTime.now()).toLowerCase();
+        DateFormat('EEEE').format(DateTime.now()).toLowerCase();
     final Map<String, dynamic>? todayHours =
-    club.openingHours[currentWeekday] as Map<String, dynamic>?;
+        club.openingHours[currentWeekday] as Map<String, dynamic>?;
 
     String openingHoursText;
     if (todayHours == null || todayHours.isEmpty) {
@@ -30,13 +30,14 @@ class ClubHeader extends StatelessWidget {
       openingHoursText = 'Åbningstider i dag: $openTime - $closeTime';
     }
 
-    final percentOfCapacity = (club.totalPossibleAmountOfVisitors > 0)
+    double percentOfCapacity = (club.totalPossibleAmountOfVisitors > 0)
         ? club.visitors / club.totalPossibleAmountOfVisitors
-        : 10.00;
+        : 0.15;
 
-    print(club.visitors);
-    print(club.totalPossibleAmountOfVisitors);
-    print(percentOfCapacity);
+    if (percentOfCapacity >= 1) {
+      percentOfCapacity =
+          0.99; // Sets capacity to a max of 99% maybe need change.
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -102,7 +103,7 @@ class ClubHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    club.typeOfClub,
+                    club.typeOfClub, // put ageRestriction here
                     style: kTextStyleH3,
                   ),
                   Text(
