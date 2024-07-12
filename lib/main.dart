@@ -41,6 +41,8 @@ import 'package:nightview/screens/swipe/swipe_main_screen.dart';
 import 'package:nightview/screens/utility/waiting_for_login_screen.dart';
 import 'package:provider/provider.dart';
 
+import 'package:nightview/firestore/firestore_updater.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -50,6 +52,9 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  FirestoreUpdater firestoreUpdater = FirestoreUpdater();
+  firestoreUpdater.updateFirestoreData();
 
   GeofencingService geofencingService = GeofencingService();
   geofencingService.initializeWorkManager();
