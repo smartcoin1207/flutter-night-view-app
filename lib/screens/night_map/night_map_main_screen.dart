@@ -66,7 +66,7 @@ class _NightMapMainScreenState extends State<NightMapMainScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Antal brugere i byen',
+                'Brugere i byen',
                 style: kTextStyleH3,
               ),
               Row(
@@ -74,7 +74,7 @@ class _NightMapMainScreenState extends State<NightMapMainScreen> {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(
-                        Radius.circular(kSubtleBorderRadius),
+                        Radius.circular(20),
                       ),
                       border: Border.all(
                         color: Colors.white,
@@ -88,7 +88,8 @@ class _NightMapMainScreenState extends State<NightMapMainScreen> {
                         Provider.of<GlobalProvider>(context)
                             .partyCount
                             .toString(),
-                        style: kTextStyleH3,
+                        style: kTextStyleH3.copyWith(
+                            color: primaryColor),
                       ),
                     ),
                   ),

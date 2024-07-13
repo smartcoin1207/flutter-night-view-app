@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:bottom_sheet/bottom_sheet.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
@@ -17,6 +21,8 @@ import 'package:nightview/widgets/club_header.dart';
 import 'package:nightview/widgets/club_marker.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../models/friends_helper.dart';
+import '../../models/user_data.dart';
 
 class NightMap extends StatefulWidget {
   const NightMap({super.key});
@@ -28,6 +34,8 @@ class NightMap extends StatefulWidget {
 class _NightMapState extends State<NightMap> {
   ClubDataHelper clubDataHelper = ClubDataHelper();
   Map<String, Marker> markers = {};
+  Map<String, Marker> friendMarkers = {};
+  StreamSubscription? _friendLocationSubscription;
 
   @override
   void initState() {
@@ -42,6 +50,60 @@ class _NightMapState extends State<NightMap> {
             .nightMapController
             .move(LatLng(position.latitude, position.longitude), kFarMapZoom);
       });
+
+      _listenToFriendLocations();
+    });
+  }
+
+  @override
+  void dispose() {
+    _friendLocationSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _listenToFriendLocations() async {
+    final _firestore = FirebaseFirestore.instance;
+    final _auth = FirebaseAuth.instance;
+
+    if (_auth.currentUser == null) {
+      return;
+    }
+
+    String userId = _auth.currentUser!.uid;
+    _friendLocationSubscription = _firestore
+        .collection('friends')
+        .doc(userId)
+        .snapshots()
+        .listen((snapshot) async {
+      if (snapshot.exists) {
+        Map<String, dynamic> data = snapshot.data()!;
+        List<String> friendIds = data.keys.where((k) => data[k] == true).toList();
+
+        List<UserData> friendsData = [];
+        for (String friendId in friendIds) {
+          DocumentSnapshot<Map<String, dynamic>> friendSnapshot =
+          await _firestore.collection('user_data').doc(friendId).get();
+          if (friendSnapshot.exists) {
+            friendsData.add(UserData.fromMap(friendSnapshot.data()!));
+          }
+        }
+
+        setState(() {
+          friendMarkers = {
+            for (var friend in friendsData)
+              friend.id: Marker(
+                point: LatLng(friend.lastPositionLat, friend.lastPositionLon),
+                width: 80.0,
+                height: 80.0,
+                builder: (context) => Icon(
+                  Icons.person_pin_circle,
+                  color: Colors.blue,
+                  size: 40.0,
+                ),
+              )
+          };
+        });
+      }
     });
   }
 
@@ -99,7 +161,7 @@ class _NightMapState extends State<NightMap> {
         CurrentLocationLayer(),
         CustomMarkerLayer(
           rotate: true,
-          markers: markers.values.toList(),
+          markers: [...markers.values, ...friendMarkers.values],
         ),
       ],
     );
@@ -121,39 +183,41 @@ class _NightMapState extends State<NightMap> {
         club: club,
       ),
       bodyBuilder: (context, offset) => SliverChildListDelegate(
-        club.offerType == OfferType.none ? [] : [
-                Container(
-                  alignment: Alignment.topCenter,
-                  child: Text(
-                    'Hovedtilbud',
-                    style: kTextStyleH1,
+        club.offerType == OfferType.none
+            ? []
+            : [
+          Container(
+            alignment: Alignment.topCenter,
+            child: Text(
+              'Hovedtilbud',
+              style: kTextStyleH1,
+            ),
+          ),
+          SizedBox(
+            height: kNormalSpacerValue,
+          ),
+          GestureDetector(
+            onTap: () {
+              if (club.offerType == OfferType.redeemable) {
+                Navigator.of(context)
+                    .pushNamed(NightMapMainOfferScreen.id);
+              }
+            },
+            child: AspectRatio(
+              aspectRatio: 1.0,
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(club.mainOfferImg!),
+                    fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(
-                  height: kNormalSpacerValue,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    if (club.offerType == OfferType.redeemable) {
-                      Navigator.of(context)
-                          .pushNamed(NightMapMainOfferScreen.id);
-                    }
-                  },
-                  child: AspectRatio(
-                    aspectRatio: 1.0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(club.mainOfferImg!),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      alignment: Alignment.bottomRight,
-                      padding: EdgeInsets.all(kMainPadding),
-                    ),
-                  ),
-                ),
-              ],
+                alignment: Alignment.bottomRight,
+                padding: EdgeInsets.all(kMainPadding),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

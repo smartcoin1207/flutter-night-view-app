@@ -38,97 +38,105 @@ class ClubHeader extends StatelessWidget {
       percentOfCapacity =
           0.99; // Sets capacity to a max of 99% maybe need change.
     }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: FaIcon(
-                    FontAwesomeIcons.chevronDown,
-                    size: 30.0,
+    if (percentOfCapacity <= 0){
+      percentOfCapacity = 0.07; // Sets lowest capacity to 7% maybe need change.
+    }
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.black,
+        ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: FaIcon(
+                      FontAwesomeIcons.chevronDown,
+                      size: 30.0,
+                    ),
                   ),
                 ),
               ),
-            ),
-            Center(
-              child: Text(
-                club.name,
-                style: kTextStyleH1,
-                textAlign: TextAlign.center,
+              Center(
+                child: Text(
+                  club.name,
+                  style: kTextStyleH1,
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kMainPadding),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(club.logo),
-                        radius: 25.0,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: kMainPadding),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(club.logo),
+                          radius: 25.0,
+                        ),
+                        const SizedBox(width: kNormalSpacerValue),
+                        const FavoriteClubButton(),
+                      ],
+                    ),
+                    CircularPercentIndicator(
+                      radius: 30.0,
+                      lineWidth: 5.0,
+                      percent: percentOfCapacity,
+                      center: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: (percentOfCapacity * 100).toStringAsFixed(0),
+                              style: kTextStyleH3.copyWith(color: primaryColor),
+                            ),
+                            TextSpan(
+                              text: '%',
+                              style: kTextStyleH3.copyWith(color: Colors.white),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(width: kNormalSpacerValue),
-                      const FavoriteClubButton(),
-                    ],
-                  ),
-                  CircularPercentIndicator(
-                    radius: 30.0,
-                    lineWidth: 5.0,
-                    percent: percentOfCapacity,
-                    center: Text(
-                      '${(percentOfCapacity * 100).toStringAsFixed(0)}%',
+                      progressColor: secondaryColor,
+                      backgroundColor: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: kSmallSpacerValue),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${club.typeOfClub}: ${club.ageRestriction}+',
+                      // put ageRestriction here TODO
                       style: kTextStyleH3,
                     ),
-                    progressColor: secondaryColor,
-                    backgroundColor: Colors.white,
-                  ),
-                ],
+                    Text(
+                      openingHoursText,
+                      style: kTextStyleH3,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: kSmallSpacerValue),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    club.typeOfClub, // put ageRestriction here
-                    style: kTextStyleH3,
-                  ),
-                  Text(
-                    '${club.ageRestriction}+',
-                    style: kTextStyleH3,
-                  ),
-                  Text(
-                    openingHoursText,
-                    style: kTextStyleH3,
-                  ),
-                ],
+              RateClub(clubId: club.id),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: kMainPadding),
+                child: Divider(
+                  height: kNormalSpacerValue * 2,
+                  color: Colors.white,
+                  thickness: kMainStrokeWidth,
+                ),
               ),
-            ),
-            RateClub(clubId: club.id),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: kMainPadding),
-              child: Divider(
-                height: kNormalSpacerValue * 2,
-                color: Colors.white,
-                thickness: kMainStrokeWidth,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+            ],
+          ),
+        );
   }
 }

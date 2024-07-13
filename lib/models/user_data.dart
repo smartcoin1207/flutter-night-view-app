@@ -12,7 +12,7 @@ class UserData {
   final int birthdayYear;
   final double lastPositionLat;
   final double lastPositionLon;
-  final DateTime lastPositionTime;
+  final DateTime? lastPositionTime;
   final PartyStatus partyStatus;
   final DateTime partyStatusTime;
 
@@ -27,7 +27,7 @@ class UserData {
     required this.birthdayYear,
     required this.lastPositionLat,
     required this.lastPositionLon,
-    required this.lastPositionTime,
+    this.lastPositionTime,
     required this.partyStatus,
     required this.partyStatusTime,
   });
@@ -55,7 +55,7 @@ class UserData {
       'birthdayYear': birthdayYear,
       'lastPositionLat': lastPositionLat,
       'lastPositionLon': lastPositionLon,
-      'lastPositionTime': lastPositionTime.millisecondsSinceEpoch,
+      'lastPositionTime': lastPositionTime?.millisecondsSinceEpoch,
       'partyStatus': partyStatus.toString().split('.').last,
       'partyStatusTime': partyStatusTime.millisecondsSinceEpoch,
     };
@@ -71,9 +71,11 @@ class UserData {
       birthdayDay: map['birthdayDay'],
       birthdayMonth: map['birthdayMonth'],
       birthdayYear: map['birthdayYear'],
-      lastPositionLat: map['lastPositionLat'],
-      lastPositionLon: map['lastPositionLon'],
-      lastPositionTime: DateTime.fromMillisecondsSinceEpoch(map['lastPositionTime']),
+      lastPositionLat: map.containsKey('last_position_lat') ? map['last_position_lat']?.toDouble() : null,
+      lastPositionLon: map.containsKey('last_position_lon') ? map['last_position_lon']?.toDouble() : null,
+      lastPositionTime: map.containsKey('last_position_time')
+          ? DateTime.fromMillisecondsSinceEpoch(map['last_position_time'])
+          : null,
       partyStatus: PartyStatus.values.firstWhere((e) => e.toString() == 'PartyStatus.' + map['partyStatus']),
       partyStatusTime: DateTime.fromMillisecondsSinceEpoch(map['partyStatusTime']),
     );

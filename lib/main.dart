@@ -43,6 +43,8 @@ import 'package:provider/provider.dart';
 
 import 'package:nightview/firestore/firestore_updater.dart';
 
+import 'constants/Initializator.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -53,12 +55,11 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  FirestoreUpdater firestoreUpdater = FirestoreUpdater();
+  // FirestoreUpdater firestoreUpdater = FirestoreUpdater();
   // firestoreUpdater.updateFirestoreData(); // Updates Firestore.
 
-  GeofencingService geofencingService = GeofencingService();
-  geofencingService.initializeWorkManager();
-  geofencingService.registerPeriodicTask();
+  Initializator initializator = Initializator();
+  initializator.initializeNeededTasks();
 
   runApp(NightViewApp());
 }
