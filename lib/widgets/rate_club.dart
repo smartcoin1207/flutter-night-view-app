@@ -134,15 +134,15 @@ class _RateClubState extends State<RateClub>
           title: const Text('Bekræft bedømmelse'),
           content:
           Text('Vil du give $clubName en bedømmelse på $rating stjerner?'),
-          backgroundColor: Colors.black,
+          backgroundColor: black,
           titleTextStyle: TextStyle(color: primaryColor, fontSize: 20),
-          contentTextStyle: TextStyle(color: Colors.white),
+          contentTextStyle: TextStyle(color: white),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: Text('Fortryd', style: TextStyle(color: Colors.redAccent)),
+              child: Text('Fortryd', style: TextStyle(color: redAccent)),
             ),
             TextButton(
               onPressed: () {
@@ -197,7 +197,7 @@ class _RateClubState extends State<RateClub>
             SnackBar(
               content: Text(
                 'Du har allerede bedømt $clubName for nylig.',
-                style: TextStyle(color: Colors.redAccent),
+                style: TextStyle(color: redAccent),
               ),
             backgroundColor: Colors.black,
             duration: Duration(seconds: 2),

@@ -2,10 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nightview/firebase_options.dart';
-import 'package:nightview/locations/geofencing_service.dart';
 import 'package:nightview/models/chat_subscriber.dart';
-import 'package:nightview/models/club_data_helper.dart';
-import 'package:nightview/models/location_helper.dart';
 import 'package:nightview/models/search_new_chat_helper.dart';
 import 'package:nightview/models/search_friends_helper.dart';
 import 'package:nightview/providers/balladefabrikken_provider.dart';
@@ -44,6 +41,7 @@ import 'package:provider/provider.dart';
 import 'package:nightview/firestore/firestore_updater.dart';
 
 import 'constants/Initializator.dart';
+import 'constants/colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,12 +91,12 @@ class NightViewApp extends StatelessWidget {
       ],
       child: MaterialApp(
         theme: ThemeData.dark().copyWith(
-          scaffoldBackgroundColor: Colors.black,
+          scaffoldBackgroundColor: black,
           appBarTheme: AppBarTheme(
-            color: Colors.black,
+            color: black,
           ),
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
-            backgroundColor: Colors.black,
+            backgroundColor: black,
             showUnselectedLabels: false,
           ),
         ),

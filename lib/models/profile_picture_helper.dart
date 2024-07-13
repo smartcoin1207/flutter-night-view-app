@@ -8,6 +8,8 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 
+import '../constants/colors.dart';
+
 class ProfilePictureHelper {
   static final ImagePicker _picker = ImagePicker();
 
@@ -44,8 +46,8 @@ class ProfilePictureHelper {
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Vælg billede',
-          toolbarColor: Colors.black,
-          toolbarWidgetColor: Colors.white,
+          toolbarColor: black,
+          toolbarWidgetColor: white,
           hideBottomControls: true,
           initAspectRatio: CropAspectRatioPreset.square,
           lockAspectRatio: true,

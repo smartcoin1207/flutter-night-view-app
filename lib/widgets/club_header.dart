@@ -43,7 +43,7 @@ class ClubHeader extends StatelessWidget {
     }
       return Container(
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: black,
         ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,10 +63,26 @@ class ClubHeader extends StatelessWidget {
                 ),
               ),
               Center(
-                child: Text(
-                  club.name,
-                  style: kTextStyleH1,
-                  textAlign: TextAlign.center,
+                child: Stack(
+                  children: <Widget>[
+                    // Stroked text as border.
+                    Text(
+                      club.name,
+                      style: kTextStyleH1.copyWith(
+                        foreground: Paint()
+                          ..style = PaintingStyle.stroke
+                          ..strokeWidth = 0.2
+                          ..color = white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    // Solid text as fill.
+                    Text(
+                      club.name,
+                      style: kTextStyleH1.copyWith(color: primaryColor),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
               Padding(
@@ -97,13 +113,13 @@ class ClubHeader extends StatelessWidget {
                             ),
                             TextSpan(
                               text: '%',
-                              style: kTextStyleH3.copyWith(color: Colors.white),
+                              style: kTextStyleH3.copyWith(color: white),
                             ),
                           ],
                         ),
                       ),
                       progressColor: secondaryColor,
-                      backgroundColor: Colors.white,
+                      backgroundColor: white,
                     ),
                   ],
                 ),
@@ -131,7 +147,7 @@ class ClubHeader extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: kMainPadding),
                 child: Divider(
                   height: kNormalSpacerValue * 2,
-                  color: Colors.white,
+                  color: white,
                   thickness: kMainStrokeWidth,
                 ),
               ),

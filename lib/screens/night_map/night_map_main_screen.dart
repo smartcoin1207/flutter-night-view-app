@@ -77,7 +77,7 @@ class _NightMapMainScreenState extends State<NightMapMainScreen> {
                         Radius.circular(20),
                       ),
                       border: Border.all(
-                        color: Colors.white,
+                        color: white,
                         width: kMainStrokeWidth,
                       ),
                     ),
