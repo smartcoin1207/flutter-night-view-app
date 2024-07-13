@@ -9,6 +9,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:nightview/constants/colors.dart';
 import 'package:nightview/constants/enums.dart';
 import 'package:nightview/constants/text_styles.dart';
 import 'package:nightview/constants/values.dart';
@@ -42,11 +43,13 @@ class _NightMapState extends State<NightMap> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      Provider.of<GlobalProvider>(context, listen: false)
+      Provider
+          .of<GlobalProvider>(context, listen: false)
           .locationHelper
           .getCurrentPosition()
           .then((position) {
-        Provider.of<GlobalProvider>(context, listen: false)
+        Provider
+            .of<GlobalProvider>(context, listen: false)
             .nightMapController
             .move(LatLng(position.latitude, position.longitude), kFarMapZoom);
       });
@@ -77,7 +80,8 @@ class _NightMapState extends State<NightMap> {
         .listen((snapshot) async {
       if (snapshot.exists) {
         Map<String, dynamic> data = snapshot.data()!;
-        List<String> friendIds = data.keys.where((k) => data[k] == true).toList();
+        List<String> friendIds = data.keys.where((k) => data[k] == true)
+            .toList();
 
         List<UserData> friendsData = [];
         for (String friendId in friendIds) {
@@ -94,13 +98,24 @@ class _NightMapState extends State<NightMap> {
               friend.id: Marker(
                 point: LatLng(friend.lastPositionLat, friend.lastPositionLon),
                 width: 80.0,
-                height: 80.0,
-                builder: (context) => Icon(
-                  Icons.person_pin_circle,
-                  color: Colors.blue,
-                  size: 40.0,
-                ),
-              )
+                height: 100.0,
+                builder: (context) =>
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(friend.firstName,
+                          style: TextStyle(color: secondaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12.0,
+                          ),
+                        ),
+                        Icon(
+                          Icons.person_pin_circle,
+                          color: primaryColor,
+                          size: 40.0,
+                        ),
+                      ],
+                    ),)
           };
         });
       }
@@ -111,7 +126,8 @@ class _NightMapState extends State<NightMap> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    Provider.of<GlobalProvider>(context)
+    Provider
+        .of<GlobalProvider>(context)
         .clubDataHelper
         .clubData
         .forEach((id, club) {
@@ -119,15 +135,16 @@ class _NightMapState extends State<NightMap> {
         point: LatLng(club.lat, club.lon),
         width: 100.0,
         height: 100.0,
-        builder: (context) => ClubMarker(
-          logo: CachedNetworkImageProvider(club.logo),
-          visitors: club.visitors,
-          onTap: () {
-            Provider.of<GlobalProvider>(context, listen: false)
-                .setChosenClub(club);
-            showClubSheet(club: club);
-          },
-        ),
+        builder: (context) =>
+            ClubMarker(
+              logo: CachedNetworkImageProvider(club.logo),
+              visitors: club.visitors,
+              onTap: () {
+                Provider.of<GlobalProvider>(context, listen: false)
+                    .setChosenClub(club);
+                showClubSheet(club: club);
+              },
+            ),
       );
     });
   }
@@ -135,7 +152,9 @@ class _NightMapState extends State<NightMap> {
   @override
   Widget build(BuildContext context) {
     return FlutterMap(
-      mapController: Provider.of<GlobalProvider>(context).nightMapController,
+      mapController: Provider
+          .of<GlobalProvider>(context)
+          .nightMapController,
       options: MapOptions(
         center: LatLng(56.15607303880937, 10.208507572938238),
         zoom: kFarMapZoom,
@@ -170,55 +189,59 @@ class _NightMapState extends State<NightMap> {
   void showClubSheet({required ClubData club}) {
     showStickyFlexibleBottomSheet(
       context: context,
-      initHeight: 0.35, // maybe more?
+      initHeight: 0.35,
+      // maybe more?
       minHeight: 0,
-      maxHeight: 1, // club.offerType == OfferType.none ? 0.3 : 1,
+      maxHeight: 1,
+      // club.offerType == OfferType.none ? 0.3 : 1,
       headerHeight: 315,
       isSafeArea: false,
       bottomSheetColor: Colors.transparent,
       decoration: BoxDecoration(
         color: Colors.black,
       ),
-      headerBuilder: (context, offset) => ClubHeader(
-        club: club,
-      ),
-      bodyBuilder: (context, offset) => SliverChildListDelegate(
-        club.offerType == OfferType.none
-            ? []
-            : [
-          Container(
-            alignment: Alignment.topCenter,
-            child: Text(
-              'Hovedtilbud',
-              style: kTextStyleH1,
-            ),
+      headerBuilder: (context, offset) =>
+          ClubHeader(
+            club: club,
           ),
-          SizedBox(
-            height: kNormalSpacerValue,
-          ),
-          GestureDetector(
-            onTap: () {
-              if (club.offerType == OfferType.redeemable) {
-                Navigator.of(context)
-                    .pushNamed(NightMapMainOfferScreen.id);
-              }
-            },
-            child: AspectRatio(
-              aspectRatio: 1.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(club.mainOfferImg!),
-                    fit: BoxFit.cover,
+      bodyBuilder: (context, offset) =>
+          SliverChildListDelegate(
+            club.offerType == OfferType.none
+                ? []
+                : [
+              Container(
+                alignment: Alignment.topCenter,
+                child: Text(
+                  'Hovedtilbud',
+                  style: kTextStyleH1,
+                ),
+              ),
+              SizedBox(
+                height: kNormalSpacerValue,
+              ),
+              GestureDetector(
+                onTap: () {
+                  if (club.offerType == OfferType.redeemable) {
+                    Navigator.of(context)
+                        .pushNamed(NightMapMainOfferScreen.id);
+                  }
+                },
+                child: AspectRatio(
+                  aspectRatio: 1.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(club.mainOfferImg!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    alignment: Alignment.bottomRight,
+                    padding: EdgeInsets.all(kMainPadding),
                   ),
                 ),
-                alignment: Alignment.bottomRight,
-                padding: EdgeInsets.all(kMainPadding),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
     );
   }
 }
