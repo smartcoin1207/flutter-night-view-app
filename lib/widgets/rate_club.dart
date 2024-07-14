@@ -35,8 +35,7 @@ class _RateClubState extends State<RateClub>
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(seconds: 1),
-    )
-      ..repeat(reverse: true);
+    )..repeat(reverse: true);
 
     // Define scale animation
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.0000001).animate(
@@ -51,9 +50,8 @@ class _RateClubState extends State<RateClub>
     // Define color animation
     _colorAnimation =
         ColorTween(begin: secondaryColor, end: primaryColor).animate(
-          CurvedAnimation(
-              parent: _animationController, curve: Curves.easeInOut),
-        );
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -80,39 +78,29 @@ class _RateClubState extends State<RateClub>
   }
 
   Future<void> _checkLocationAndRatingPermission() async {
-    // Fetch location data for the user
-    DocumentSnapshot locationDoc = await FirebaseFirestore.instance
-        .collection('location_data')
-        .doc(_currentUser!.uid)
-        .get();
+    // DocumentSnapshot locationDoc = await FirebaseFirestore.instance
+    //     .collection('location_data')        .doc(_currentUser!.uid).get();
     DocumentSnapshot ratingDoc = await FirebaseFirestore.instance
-        .collection('club_data')
-        .doc(widget.clubId)
-        .collection('ratings')
-        .doc(_currentUser!.uid)
-        .get();
+        .collection('club_data').doc(widget.clubId)
+        .collection('ratings').doc(_currentUser!.uid).get();
 
     bool canRate = false;
-    if (locationDoc.exists && locationDoc.data() != null) {
-      DateTime lastVisit = locationDoc['lastVisit'].toDate();
-      // Check if the last visit was recent (e.g., within the past 24 hours)
-      if (DateTime
-          .now()
-          .difference(lastVisit)
-          .inDays <= 100) {
-        canRate = true;
-      }
-    }
+    // if (locationDoc.exists && locationDoc['latest'].equals(true)) {
+    //   DateTime lastVisit = locationDoc['timestamp'].toDate();
+    //   if (DateTime.now().difference(lastVisit).inDays <= 100) {
+    //     canRate = true;
+    //   }
+    // }
 
-    if (ratingDoc.exists && ratingDoc.data() != null) {
+    if (ratingDoc.exists) {
       DateTime lastRating = ratingDoc['timestamp'].toDate();
-      // Check if the last rating was at least a month ago
-      if (DateTime
-          .now()
-          .difference(lastRating)
-          .inDays < 30) {
+      if (DateTime.now().difference(lastRating).inDays >= 30) {
+        canRate = true;
+      } else {
         canRate = false;
       }
+    } else {
+      canRate = true;
     }
 
     setState(() {
@@ -132,8 +120,8 @@ class _RateClubState extends State<RateClub>
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Bekræft bedømmelse'),
-          content:
-          Text('Vil du give $clubName en bedømmelse på $rating stjerner?'),
+          content: Text(
+              'Vil du give $clubName en bedømmelse på $rating/6 stjerner?'),
           backgroundColor: black,
           titleTextStyle: TextStyle(color: primaryColor, fontSize: 20),
           contentTextStyle: TextStyle(color: white),
@@ -169,7 +157,7 @@ class _RateClubState extends State<RateClub>
 
   Future<void> addRating(Rating rating) async {
     DocumentReference clubDoc =
-    FirebaseFirestore.instance.collection('club_data').doc(widget.clubId);
+        FirebaseFirestore.instance.collection('club_data').doc(widget.clubId);
     CollectionReference ratings = clubDoc.collection('ratings');
     await ratings.add(rating.toMap());
 
@@ -199,12 +187,11 @@ class _RateClubState extends State<RateClub>
                 'Du har allerede bedømt $clubName for nylig.',
                 style: TextStyle(color: redAccent),
               ),
-            backgroundColor: Colors.black,
-            duration: Duration(seconds: 2),
-          )
-        ,
-        );
-      }
+              backgroundColor: Colors.black,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       },
       child: AnimatedBuilder(
         animation: _animationController,
@@ -233,7 +220,6 @@ class _RateClubState extends State<RateClub>
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {

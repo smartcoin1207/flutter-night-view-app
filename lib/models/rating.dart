@@ -10,8 +10,8 @@ class Rating {
 
   Map<String, dynamic> toMap() {
     return {
-      'userId': userId,
-      'clubId': clubId,
+      'user_id': userId,
+      'club_id': clubId,
       'rating': rating,
       'timestamp': timestamp,
     };

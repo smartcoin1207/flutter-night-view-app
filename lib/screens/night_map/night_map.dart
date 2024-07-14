@@ -22,7 +22,6 @@ import 'package:nightview/widgets/club_header.dart';
 import 'package:nightview/widgets/club_marker.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../models/friends_helper.dart';
 import '../../models/user_data.dart';
 
 class NightMap extends StatefulWidget {
@@ -54,7 +53,7 @@ class _NightMapState extends State<NightMap> {
             .move(LatLng(position.latitude, position.longitude), kFarMapZoom);
       });
 
-      _listenToFriendLocations();
+      // _listenToFriendLocations();
     });
   }
 

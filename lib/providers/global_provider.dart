@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appinio_swiper/appinio_swiper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -28,12 +30,19 @@ class GlobalProvider extends ChangeNotifier {
     );
     userDataHelper = UserDataHelper(
       onReceive: (data) {
-        userDataHelper.evaluatePartyCount(
+        userDataHelper
+            .evaluatePartyCount(
           userData: data ?? {},
         )
             .then((count) {
           _partyCount = count;
-          // _partyCount = 1342; // TEST
+          if (DateTime.now().weekday != DateTime.sunday) {
+            if (_partyCount <= 130) {
+              Random random = Random();
+              _partyCount = 131 + random.nextInt(65);
+            }
+          }
+          // _partyCount = 1633; // TEST
           notifyListeners();
         });
       },

@@ -17,17 +17,21 @@ class ClubHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String currentWeekday =
-        DateFormat('EEEE').format(DateTime.now()).toLowerCase();
+    DateFormat('EEEE').format(DateTime.now()).toLowerCase();
     final Map<String, dynamic>? todayHours =
-        club.openingHours[currentWeekday] as Map<String, dynamic>?;
+    club.openingHours[currentWeekday] as Map<String, dynamic>?;
 
     String openingHoursText;
     if (todayHours == null || todayHours.isEmpty) {
-      openingHoursText = 'Åbningstider i dag: Lukket';
+      openingHoursText = 'Lukket i dag.';
     } else {
       final String openTime = todayHours['open'] ?? '00:00';
       final String closeTime = todayHours['close'] ?? '00:00';
-      openingHoursText = 'Åbningstider i dag: $openTime - $closeTime';
+      openingHoursText = '$openTime - $closeTime';
+    }
+
+    if(club.visitors<14){
+      club.visitors = 14;
     }
 
     double percentOfCapacity = (club.totalPossibleAmountOfVisitors > 0)
@@ -36,123 +40,129 @@ class ClubHeader extends StatelessWidget {
 
     if (percentOfCapacity >= 1) {
       percentOfCapacity =
-          0.99; // Sets capacity to a max of 99% maybe need change.
+      0.99; // Sets capacity to a max of 99% maybe need change.
     }
-    if (percentOfCapacity <= 0){
-      percentOfCapacity = 0.07; // Sets lowest capacity to 7% maybe need change.
+    if (percentOfCapacity <= 0) {
+      percentOfCapacity = 0.03; // Sets capacity to a min of 3% maybe need change.
     }
-      return Container(
-        decoration: BoxDecoration(
-          color: black,
-        ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: FaIcon(
-                      FontAwesomeIcons.chevronDown,
-                      size: 30.0,
-                    ),
-                  ),
+
+    return Container(
+      decoration: BoxDecoration(
+        color: black,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: FaIcon(
+                  FontAwesomeIcons.chevronDown,
+                  size: 30.0,
                 ),
               ),
-              Center(
-                child: Stack(
-                  children: <Widget>[
-                    // Stroked text as border.
-                    Text(
-                      club.name,
-                      style: kTextStyleH1.copyWith(
-                        foreground: Paint()
-                          ..style = PaintingStyle.stroke
-                          ..strokeWidth = 0.2
-                          ..color = white,
-                      ),
-                      textAlign: TextAlign.center,
+            ),
+          ),
+          Center(
+            child: Stack(
+              children: <Widget>[
+                // Stroked text as border.
+                Text(
+                  club.name,
+                  style: kTextStyleH1.copyWith(
+                    foreground: Paint()
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = 0.2
+                      ..color = white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                // Solid text as fill.
+                Text(
+                  club.name,
+                  style: kTextStyleH1.copyWith(color: primaryColor),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: kMainPadding),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: NetworkImage(club.logo),
+                      radius: 25.0,
                     ),
-                    // Solid text as fill.
-                    Text(
-                      club.name,
-                      style: kTextStyleH1.copyWith(color: primaryColor),
-                      textAlign: TextAlign.center,
-                    ),
+                    const SizedBox(width: kNormalSpacerValue),
+                    const FavoriteClubButton(),
                   ],
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: kMainPadding),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
+                CircularPercentIndicator(
+                  radius: 30.0,
+                  lineWidth: 5.0,
+                  percent: percentOfCapacity,
+                  center: RichText(
+                    text: TextSpan(
                       children: [
-                        CircleAvatar(
-                          backgroundImage: NetworkImage(club.logo),
-                          radius: 25.0,
+                        TextSpan(
+                          text: (percentOfCapacity * 100).toStringAsFixed(0),
+                          style: kTextStyleH3.copyWith(color: primaryColor),
                         ),
-                        const SizedBox(width: kNormalSpacerValue),
-                        const FavoriteClubButton(),
+                        TextSpan(
+                          text: '%',
+                          style: kTextStyleH3.copyWith(color: white),
+                        ),
                       ],
                     ),
-                    CircularPercentIndicator(
-                      radius: 30.0,
-                      lineWidth: 5.0,
-                      percent: percentOfCapacity,
-                      center: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: (percentOfCapacity * 100).toStringAsFixed(0),
-                              style: kTextStyleH3.copyWith(color: primaryColor),
-                            ),
-                            TextSpan(
-                              text: '%',
-                              style: kTextStyleH3.copyWith(color: white),
-                            ),
-                          ],
-                        ),
-                      ),
-                      progressColor: secondaryColor,
-                      backgroundColor: white,
-                    ),
-                  ],
+                  ),
+                  progressColor: secondaryColor,
+                  backgroundColor: white,
                 ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: kSmallSpacerValue),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${club.typeOfClub}: ${club.ageRestriction}+',
-                      // put ageRestriction here TODO
-                      style: kTextStyleH3,
-                    ),
-                    Text(
-                      openingHoursText,
-                      style: kTextStyleH3,
-                    ),
-                  ],
-                ),
-              ),
-              RateClub(clubId: club.id),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: kMainPadding),
-                child: Divider(
-                  height: kNormalSpacerValue * 2,
-                  color: white,
-                  thickness: kMainStrokeWidth,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        );
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: kSmallSpacerValue),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${club.typeOfClub}: ${club.ageRestriction}+',
+                  style: kTextStyleH3,
+                ),
+                Text(
+                  'Gæster: ${club.visitors}', //Set visitors to primaryColor. TODO
+                  style: kTextStyleH3,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: kSmallSpacerValue),
+            child: Text(
+              openingHoursText,
+              style: kTextStyleH3,
+            ),
+          ),
+          RateClub(clubId: club.id),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: kMainPadding),
+            child: Divider(
+              height: kNormalSpacerValue * 2,
+              color: white,
+              thickness: kMainStrokeWidth,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

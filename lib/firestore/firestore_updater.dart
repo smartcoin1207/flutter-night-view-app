@@ -114,10 +114,10 @@ class FirestoreUpdater {
     if (ratingsSnapshot.docs.isEmpty) {
       // Add a document with specified fields to ensure the collection is created
       await ratingsRef.add({
-        'clubId': clubDocumentId,
+        'club_id': clubDocumentId,
         'rating': 3,
         'timestamp': FieldValue.serverTimestamp(),
-        'userId': 'Edj2ex3selWyLnUV8qvDanrNH2L2',
+        'user_id': 'Edj2ex3selWyLnUV8qvDanrNH2L2',
       });
     }
   }
