@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nightview/constants/text_styles.dart';
-
 import 'package:nightview/constants/values.dart';
 import 'package:nightview/providers/global_provider.dart';
 import 'package:nightview/widgets/icon_with_text.dart';
@@ -9,6 +8,8 @@ import 'package:provider/provider.dart';
 
 class SwipeCardContent extends StatelessWidget {
   const SwipeCardContent({super.key});
+
+  //TODO Put variables in here. Pictures and text
 
   @override
   Widget build(BuildContext context) {

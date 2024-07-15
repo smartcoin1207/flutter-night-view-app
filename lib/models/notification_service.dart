@@ -1,18 +1,19 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'dart:math';
 
 class NotificationService {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
 
   NotificationService() {
-    // Initialize timezone data
     tz.initializeTimeZones();
     _initializeNotifications();
   }
 
-  void _initializeNotifications() async {
+  Future<void> _initializeNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
     AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -23,42 +24,35 @@ class NotificationService {
       requestSoundPermission: true,
     );
 
-    const InitializationSettings initializationSettings = InitializationSettings(
+    const InitializationSettings initializationSettings =
+    InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: _onNotificationResponse,
+    );
   }
 
   Future<void> requestPermission() async {
-    if (await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-      alert: true,
-      badge: true,
-      sound: true,
-    ) ??
-        false) {
+    final iosPlugin = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+    final macOsPlugin = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>();
+
+    if (await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true) ?? false) {
       print('iOS Notification permission granted.');
     }
-
-    if (await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        MacOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-      alert: true,
-      badge: true,
-      sound: true,
-    ) ??
-        false) {
+    if (await macOsPlugin?.requestPermissions(alert: true, badge: true, sound: true) ?? false) {
       print('macOS Notification permission granted.');
     }
   }
 
   Future<void> showNotification() async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+    const AndroidNotificationDetails androidDetails =
+    AndroidNotificationDetails(
       'nightview_channel',
       'nightview_notifications',
       importance: Importance.max,
@@ -66,36 +60,55 @@ class NotificationService {
       ticker: 'ticker',
     );
 
-    const DarwinNotificationDetails iOSPlatformChannelSpecifics = DarwinNotificationDetails();
+    const DarwinNotificationDetails iOSDetails = DarwinNotificationDetails();
 
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: iOSPlatformChannelSpecifics,
+    const NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iOSDetails,
     );
 
-    await flutterLocalNotificationsPlugin.show( // What is this TODO
+    await flutterLocalNotificationsPlugin.show(
       0,
       'Hello',
       'Would you like to continue?',
-      platformChannelSpecifics,
+      platformDetails,
       payload: 'custom_payload',
     );
   }
 
-  Future<void> scheduleNotification({required int id, required String title, required String body, required DateTime scheduledDate}) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+  Future<void> scheduleNotification(
+      {required int id,
+        required String title,
+        required String body,
+        required DateTime scheduledDate}) async {
+    const AndroidNotificationDetails androidDetails =
+    AndroidNotificationDetails(
       'nightview_channel',
       'nightview_notifications',
       importance: Importance.max,
       priority: Priority.high,
       ticker: 'ticker',
+      actions: <AndroidNotificationAction>[
+        AndroidNotificationAction('yes', 'Yes'),
+        AndroidNotificationAction('no', 'No'),
+      ],
     );
 
-    const DarwinNotificationDetails iOSPlatformChannelSpecifics = DarwinNotificationDetails();
+    final DarwinNotificationDetails iOSDetails = DarwinNotificationDetails(
+      categoryIdentifier: 'plainCategory',
+    );
 
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: iOSPlatformChannelSpecifics,
+    final DarwinNotificationCategory plainCategory = DarwinNotificationCategory(
+      'plainCategory',
+      actions: <DarwinNotificationAction>[
+        DarwinNotificationAction.plain('yes', 'Yes'),
+        DarwinNotificationAction.plain('no', 'No'),
+      ],
+    );
+
+    final NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iOSDetails,
     );
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
@@ -103,10 +116,11 @@ class NotificationService {
       title,
       body,
       tz.TZDateTime.from(scheduledDate, tz.local),
-      platformChannelSpecifics,
+      platformDetails,
       androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time, // To trigger daily at the same time
+      uiLocalNotificationDateInterpretation:
+      UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 
@@ -174,15 +188,21 @@ class NotificationService {
     ];
 
     final rng = Random();
-    for (int i = 0; i < 3; i++) { // Thursday, Friday, Saturday
-      for (int j = 0; j < 10; j++) { // For 10 different messages
+    for (int i = 0; i < 3; i++) {
+      // Thursday, Friday, Saturday
+      for (int j = 0; j < 10; j++) {
         final int weekday = i + 4; // 4=Thursday, 5=Friday, 6=Saturday
         final DateTime now = DateTime.now();
-        final DateTime scheduledDate = DateTime(now.year, now.month, now.day, 15).add(Duration(days: (weekday - now.weekday) % 7));
+        final DateTime scheduledDate = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          15,
+        ).add(Duration(days: (weekday - now.weekday) % 7));
 
         scheduleNotification(
           id: i * 10 + j,
-          title: 'Event Reminder',
+          title: '',
           body: messages[rng.nextInt(messages.length)],
           scheduledDate: scheduledDate,
         );
@@ -190,4 +210,24 @@ class NotificationService {
     }
   }
 
+  void _onNotificationResponse(NotificationResponse response) {
+    // Handle notification response actions here
+    if (response.payload != null) {
+      print('Notification payload: ${response.payload}');
+    }
+    switch (response.notificationResponseType) {
+      case NotificationResponseType.selectedNotification:
+      // Handle notification tapped event
+        print('Notification tapped');
+        break;
+      case NotificationResponseType.selectedNotificationAction:
+      // Handle action button tapped event
+        if (response.actionId == 'yes') {
+          print('Yes button clicked');
+        } else if (response.actionId == 'no') {
+          print('No button clicked');
+        }
+        break;
+    }
+  }
 }

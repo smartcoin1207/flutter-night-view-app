@@ -139,7 +139,7 @@ class ClubHeader extends StatelessWidget {
                   style: kTextStyleH3,
                 ),
                 Text(
-                  'Gæster: ${club.visitors}', //Set visitors to primaryColor. TODO
+                  '${club.visitors} Gæster', //Set visitors to primaryColor. TODO
                   style: kTextStyleH3,
                 ),
               ],

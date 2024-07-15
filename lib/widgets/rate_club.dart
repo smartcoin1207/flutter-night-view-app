@@ -77,14 +77,31 @@ class _RateClubState extends State<RateClub>
     }
   }
 
+
+
   Future<void> _checkLocationAndRatingPermission() async {
     // DocumentSnapshot locationDoc = await FirebaseFirestore.instance
     //     .collection('location_data')        .doc(_currentUser!.uid).get();
-    DocumentSnapshot ratingDoc = await FirebaseFirestore.instance
-        .collection('club_data').doc(widget.clubId)
-        .collection('ratings').doc(_currentUser!.uid).get();
+
+    QuerySnapshot ratingQuerySnapshot = await FirebaseFirestore.instance
+        .collection('club_data')
+        .doc(widget.clubId)
+        .collection('ratings')
+        .where('user_id', isEqualTo: _currentUser!.uid)
+        .get();
 
     bool canRate = false;
+
+    if(ratingQuerySnapshot.docs.isEmpty){
+      canRate = true;
+    }
+
+    // DocumentSnapshot ratingDoc = ratingQuerySnapshot.docs.first;
+    // DateTime lastRating = ratingDoc['timestamp'].toDate();
+    // if (DateTime.now().difference(lastRating).inDays >= 30) {
+    //   canRate = true;
+    // }
+
     // if (locationDoc.exists && locationDoc['latest'].equals(true)) {
     //   DateTime lastVisit = locationDoc['timestamp'].toDate();
     //   if (DateTime.now().difference(lastVisit).inDays <= 100) {
@@ -92,20 +109,18 @@ class _RateClubState extends State<RateClub>
     //   }
     // }
 
-    if (ratingDoc.exists) {
-      DateTime lastRating = ratingDoc['timestamp'].toDate();
-      if (DateTime.now().difference(lastRating).inDays >= 30) {
-        canRate = true;
-      } else {
-        canRate = false;
-      }
-    } else {
-      canRate = true;
-    }
+    // if (ratingDoc.exists) {
+
+    // }
+    // else {
+    //   canRate = true;
+    // }
 
     setState(() {
       _canRate = canRate;
       // _canRate = true; //TEST
+
+      // RIGHT NOW PEOPLE CAN rate forever if they dont close the club_header. TODO
     });
   }
 
@@ -153,13 +168,35 @@ class _RateClubState extends State<RateClub>
       await addRating(ratingObj);
       await _fetchClubData(); // Refresh club rating from the database
     }
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Bedømmelse Modtaget'),
+          content: const Text('Tak for din bedømmelse!'),
+          backgroundColor: black,
+          titleTextStyle: TextStyle(color: primaryColor, fontSize: 20),
+          contentTextStyle: TextStyle(color: white),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pushReplacementNamed('/night_map'); // Navigate to map screen
+              },
+              child: Text('Det var så lidt!', style: TextStyle(color: primaryColor)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> addRating(Rating rating) async {
     DocumentReference clubDoc =
         FirebaseFirestore.instance.collection('club_data').doc(widget.clubId);
     CollectionReference ratings = clubDoc.collection('ratings');
-    await ratings.add(rating.toMap());
+    await ratings.add(rating.toMap()); // Maybe make the document name the id of the rater.
 
     // Calculate new average rating
     QuerySnapshot ratingsSnapshot = await ratings.get();

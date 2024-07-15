@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
 import '../locations/geofencing_service.dart';
+import '../models/notification_service.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -10,6 +10,9 @@ class Initializator {
     GeofencingService geofencingService = GeofencingService();
     geofencingService.initializeWorkManager();
     geofencingService.registerPeriodicTask();
+
+    NotificationService notificationService = NotificationService();
+    notificationService;
 
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -35,4 +38,5 @@ class Initializator {
       },
     );
   }
+
 }

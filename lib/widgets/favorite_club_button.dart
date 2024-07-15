@@ -36,9 +36,9 @@ class _FavoriteClubButtonState extends State<FavoriteClubButton> {
             SnackBar(
               content: Text(
                 'Der skete en fejl',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: redAccent),
               ),
-              backgroundColor: Colors.black,
+              backgroundColor: black,
             ),
           );
           return;
