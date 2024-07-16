@@ -24,8 +24,7 @@ class FirestoreUpdater {
           // print('Original Data: $data'); // Debug: Print original data
 
           _removeUnwantedAttributes(data);
-          // _ensureOpeningHours(data);
-          // _updateFields(data);
+          _updateFields(data);
 
           // print('Updated Data: $data'); // Debug: Print updated data
 
@@ -78,22 +77,15 @@ class FirestoreUpdater {
     putIfAbsent(data, 'total_possible_amount_of_visitors', 1); // Number
     putIfAbsent(data, 'type_of_club', 'Klub'); // String
     putIfAbsent(data, 'visitors', 0); // Number
-  }
-
-  void _ensureOpeningHours(Map<String, dynamic> data) { //TODO NOT WORKING
-    // Ensure openingHours is a map with the correct structure
-    if (data['opening_hours'] == null ||
-        data['opening_hours'] is! Map<String, dynamic>) {
-      data['opening_hours'] = {
-        'monday': null, // Closed all day
-        'tuesday': null, // Closed all day
-        'wednesday': {'open': '21:00', 'close': '01:00'},
-        'thursday': {'open': '21:00', 'close': '05:00'},
-        'friday': {'open': '21:00', 'close': '05:00'},
-        'saturday': {'open': '21:00', 'close': '05:00'},
-        'sunday': null, // Closed all day
-      };
-    }
+    putIfAbsent(data, 'opening_hours', {
+      'monday': null,
+      'tuesday': null,
+      'wednesday': {'open': '20:00', 'close': 'luk'},
+      'thursday': {'open': '20:00', 'close': 'luk'},
+      'friday': {'open': '20:00', 'close': 'luk'},
+      'saturday': {'open': '20:00', 'close': 'luk'},
+      'sunday': null,
+    });
   }
 
   void _removeUnwantedAttributes(Map<String, dynamic> data) {

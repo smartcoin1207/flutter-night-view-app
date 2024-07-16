@@ -53,7 +53,7 @@ class _NightMapState extends State<NightMap> {
             .move(LatLng(position.latitude, position.longitude), kFarMapZoom);
       });
 
-      // _listenToFriendLocations();
+      // _listenToFriendLocations(); Not needed now
     });
   }
 

@@ -30,8 +30,10 @@ class ClubData {
     required this.lon,
     required this.favorites,
     required this.corners,
+
     required this.offerType,
     required this.mainOfferImg,
+
     required this.ageRestriction,
     required this.typeOfClub,
     required this.rating,

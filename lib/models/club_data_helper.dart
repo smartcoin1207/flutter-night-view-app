@@ -32,15 +32,23 @@ class ClubDataHelper {
     try {
       final data = club.data();
 
-      final logoUrl = await _storageRef
-          .child('club_logos/${data['logo']}')
-          .getDownloadURL();
-      final mainOfferImgUrl =
-          stringToOfferType(data['offer_type']) == OfferType.none
-              ? null
-              : await _storageRef
-                  .child('main_offers/${data['main_offer_img']}')
-                  .getDownloadURL();
+      String logoUrl;
+      try {
+        logoUrl = await _storageRef.child('club_logos/${data['logo']}').getDownloadURL();
+      } catch (e) {
+        print('Error fetching logo URL for ${data['name']}: $e');
+        logoUrl = "null";
+      }
+
+      String? mainOfferImgUrl;
+      try {
+        if (stringToOfferType(data['offer_type']) != OfferType.none) {
+          mainOfferImgUrl = await _storageRef.child('main_offers/${data['main_offer_img']}').getDownloadURL();
+        }
+      } catch (e) {
+        print('Error fetching main offer image URL for ${data['name']}: $e');
+        mainOfferImgUrl = null;
+      }
 
       final corners = (data['corners'] as List).map((geoPoint) {
         final point = geoPoint as GeoPoint;

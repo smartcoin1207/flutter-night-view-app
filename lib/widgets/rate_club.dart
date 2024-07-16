@@ -169,27 +169,27 @@ class _RateClubState extends State<RateClub>
       await _fetchClubData(); // Refresh club rating from the database
     }
 
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Bedømmelse Modtaget'),
-          content: const Text('Tak for din bedømmelse!'),
-          backgroundColor: black,
-          titleTextStyle: TextStyle(color: primaryColor, fontSize: 20),
-          contentTextStyle: TextStyle(color: white),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context).pushReplacementNamed('/night_map'); // Navigate to map screen
-              },
-              child: Text('Det var så lidt!', style: TextStyle(color: primaryColor)),
-            ),
-          ],
-        );
-      },
-    );
+    // await showDialog( kun hvis modtaget!
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return AlertDialog(
+    //       title: const Text('Bedømmelse Modtaget'),
+    //       content: const Text('Tak for din bedømmelse!'),
+    //       backgroundColor: black,
+    //       titleTextStyle: TextStyle(color: primaryColor, fontSize: 20),
+    //       contentTextStyle: TextStyle(color: white),
+    //       actions: <Widget>[
+    //         TextButton(
+    //           onPressed: () {
+    //             Navigator.of(context).pop(); // Close the dialog
+    //             Navigator.of(context).pushReplacementNamed('/night_map'); // Navigate to map screen
+    //           },
+    //           child: Text('Det var så lidt!', style: TextStyle(color: primaryColor)),
+    //         ),
+    //       ],
+    //     );
+    //   },
+    // );
   }
 
   Future<void> addRating(Rating rating) async {

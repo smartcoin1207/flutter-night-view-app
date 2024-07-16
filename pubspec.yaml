@@ -42,7 +42,7 @@ dependencies:
   firebase_core: ^2.15.0
   firebase_auth: ^4.7.2
   http: ^0.13.6
-  cloud_firestore: ^4.8.4
+  cloud_firestore: ^4.9.3
   font_awesome_flutter: ^10.4.0
   percent_indicator: ^4.2.3
   searchfield: ^0.8.4

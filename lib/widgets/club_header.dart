@@ -24,7 +24,8 @@ class ClubHeader extends StatelessWidget {
     String openingHoursText;
     if (todayHours == null || todayHours.isEmpty) {
       openingHoursText = 'Lukket i dag.';
-    } else {
+    }
+    else {
       final String openTime = todayHours['open'] ?? '00:00';
       final String closeTime = todayHours['close'] ?? '00:00';
       openingHoursText = '$openTime - $closeTime';
@@ -45,6 +46,14 @@ class ClubHeader extends StatelessWidget {
     if (percentOfCapacity <= 0) {
       percentOfCapacity = 0.03; // Sets capacity to a min of 3% maybe need change.
     }
+
+   String currentAgeRestriction = club.ageRestriction.toString();
+
+    if (todayHours != null && todayHours.containsKey('age_restriction')) {
+      currentAgeRestriction = todayHours['age_restriction'];
+    }
+
+    String currentTypeOfClub = club.typeOfClub.substring(0,1).toUpperCase() + club.typeOfClub.substring(1,);
 
     return Container(
       decoration: BoxDecoration(
@@ -135,7 +144,7 @@ class ClubHeader extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${club.typeOfClub}: ${club.ageRestriction}+',
+                  '$currentTypeOfClub: $currentAgeRestriction+',
                   style: kTextStyleH3,
                 ),
                 Text(

@@ -23,9 +23,11 @@ if (flutterVersionName == null) {
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.google.gms.google-services'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
+    namespace 'com.nightview.nightview'
     compileSdkVersion rootProject.ext.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
@@ -53,6 +55,10 @@ android {
         versionName flutterVersionName
     }
 
+//    buildFeatures {
+//        buildConfig = true
+//    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
@@ -67,5 +73,7 @@ flutter {
 }
 
 dependencies {
+    // Send help
+//    implementation platform('com.google.firebase:firebase-bom:33.1.2')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
