@@ -8,6 +8,9 @@
 .buildlog/
 .history
 .svn/
+store.jks
+upload-keystore.jks
+upload_certificate.pem
 migrate_working_dir/
 
 # IntelliJ related
