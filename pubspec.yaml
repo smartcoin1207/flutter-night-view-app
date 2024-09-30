@@ -47,7 +47,7 @@ dependencies:
   percent_indicator: ^4.2.3
   searchfield: ^0.8.4
   flutter_map: ^4.0.0
-  google_maps_flutter: ^2.1.1
+#  google_maps_flutter: ^2.1.1
   latlong2: ^0.8.2
   url_launcher: ^6.1.11
   flutter_map_location_marker: ^6.0.0
