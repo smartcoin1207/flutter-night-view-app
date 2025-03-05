@@ -9,6 +9,11 @@
     }
   ],
   "defaultOptions" : {
+    "locationScenario" : {
+      "identifier" : "Berlin, Germany",
+      "referenceType" : "built-in"
+    },
+    "region" : "DK",
     "testTimeoutsEnabled" : true
   },
   "testTargets" : [
