@@ -44,12 +44,16 @@ class NightMapState extends State<NightMap> with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final helper = context.read<NightMapProvider>().clubDataHelper;
-      //helper.loadInitialClubs();
-      _clubStreamSub = helper.initialClubStream.listen(_addMarker);
-      _initializeUserLocation();
-      // _initializeMarkers();
+    _initializeData();
+  }
+
+  void _initializeData() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await clubDataHelper.loadInitialClubs(); // ✅ Load club data
+      clubDataHelper.listenToFirestoreUpdates(); // ✅ Listen for updates
+
+      _clubStreamSub = clubDataHelper.initialClubStream.listen(_addMarker); // ✅ Subscribe to stream
+      _initializeUserLocation(); // ✅ Initialize user location
     });
   }
 

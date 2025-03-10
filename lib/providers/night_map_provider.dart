@@ -41,10 +41,4 @@ class NightMapProvider with ChangeNotifier {
   void moveToUserLocation(LatLng position) {
     nightMapController.move(position, nightMapController.camera.zoom);
   }
-
-
-
-
-
-
 }

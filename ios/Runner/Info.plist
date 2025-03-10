@@ -46,6 +46,11 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is gathered when using the app so your friends can see the latest club/bar
       you were at.</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>Location</key>
+		<string>Used to provide location-based features.</string>
+	</dict>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Access your photo library to set a profile picture. Only the images you choose are
       uploaded to our servers.</string>

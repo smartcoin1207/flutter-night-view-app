@@ -103,9 +103,6 @@ class _NightViewAppState extends State<NightViewApp> {
       _locationTimer = Timer.periodic(Duration(seconds: 5), (_) async {
         final location = await LocationService.getUserLocation();
         if (location != null) {
-          final clubDataHelper =
-              Provider.of<ClubDataHelper>(context, listen: false);
-          await clubDataHelper.updateWithLocation();
         }
       });
     });

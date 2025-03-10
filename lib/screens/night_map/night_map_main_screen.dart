@@ -100,11 +100,7 @@ class _NightMapMainScreenState extends State<NightMapMainScreen> {
     // TODO Needs complete rework. Does too much
 
     return FutureBuilder<LatLng?>(
-        future: LocationService
-            .getUserLocation(), //todo make global local variable instead of fetching every time
-//        future: LocationHelper(onPositionUpdate: (_) {}).getCurrentPosition().then(
-        //(position) => LatLng(position.latitude, position.longitude),
-//),
+        future: LocationService.getUserLocation(), //todo make global local variable instead of fetching every time
 
         // Needed in order to call showalltypesbar + seach. Prop needs refac
         builder: (context, snapshot) {

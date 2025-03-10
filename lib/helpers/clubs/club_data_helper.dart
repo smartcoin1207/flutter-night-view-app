@@ -10,6 +10,20 @@ import 'package:nightview/models/clubs/club_data.dart';
 import 'package:nightview/models/clubs/club_visit.dart';
 
 class ClubDataHelper with ChangeNotifier {
+  // Static variable to hold the single instance of the class
+  static final ClubDataHelper _instance = ClubDataHelper._internal();
+
+  // Private constructor
+  ClubDataHelper._internal() {
+    // Automatically call listenToFirestoreUpdates when the singleton instance is created
+    // listenToFirestoreUpdates();
+  }
+
+  // Factory method to return the single instance
+  factory ClubDataHelper() {
+    return _instance;
+  }
+
   final _firestore = FirebaseFirestore.instance;
   final _storageRef = FirebaseStorage.instance.ref();
 
@@ -25,20 +39,20 @@ class ClubDataHelper with ChangeNotifier {
   final ValueNotifier<int> remainingClubsNotifier = ValueNotifier(0);
   int totalAmountOfClubs = 0;
   bool initialLoadDone = false;
+  final Map<String, String> _urlCache = {}; // Cache to store fetched URLs
 
-  ClubDataHelper() {
-    if (clubData.isEmpty) {
-      loadInitialClubs().then((_) => initialLoadDone = true);
-    }
+  // Listening to Firestore updates
+  void listenToFirestoreUpdates() {
+    if (initialLoadDone) return; // Skip listening if already initialized
+
     _firestore.collection('club_data').snapshots().listen((snap) {
       print("🔄 Firestore updated: Processing only changed clubs...");
-      print(clubData.length);
       for (var club in snap.docChanges) {
         switch (club.type) {
           case DocumentChangeType.added:
           case DocumentChangeType.modified:
-            _processClub(club.doc as QueryDocumentSnapshot<
-                Map<String, dynamic>>); // Ensure QueryDocumentSnapshot
+            _processClub(
+                club.doc);
             break;
           case DocumentChangeType.removed:
             clubData.remove(club.doc.id);
@@ -77,9 +91,10 @@ class ClubDataHelper with ChangeNotifier {
 
   Future<void> updateWithLocation() async {
     final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-      timeLimit: Duration(seconds: 5),
-    ).timeout(Duration(seconds: 5), onTimeout: () {
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high, // ✅ Use LocationSettings
+      ),
+    ).timeout(Duration(seconds: 0), onTimeout: () {
       print('Location fetch timed out');
       return Position(
         latitude: 55.6761,
@@ -139,9 +154,15 @@ class ClubDataHelper with ChangeNotifier {
   }
 
   Future<ClubData?> _processClub(
-      QueryDocumentSnapshot<Map<String, dynamic>> club) async {
+      DocumentSnapshot<Map<String, dynamic>> club) async {
     try {
       final data = club.data();
+
+      if (data == null) {
+        print("⚠️ Warning: Club ${club.id} has no data.");
+        return null; // Return early if data is null
+      }
+
       if (clubData.containsKey(club.id)) {
         final existingClub = clubData[club.id]!;
         bool hasChanged = existingClub.name != data['name'] ||
@@ -178,11 +199,15 @@ class ClubDataHelper with ChangeNotifier {
         (stringToOfferType(data['offer_type'] ?? '') != OfferType.none)
             ? _fetchStorageUrl('main_offers/${data['main_offer_img']}',
                 fallback: '')
-            : Future.value(null),
+            : Future.value(''),
       ];
       final urls = await Future.wait(fetchUrls);
-      final logoUrl = urls[0] as String;
-      final mainOfferImgUrl = urls[1];
+
+      final logoUrl = (urls[0] != "null" && urls[0].isNotEmpty) 
+          ? urls[0]!
+          : typeOfClubImageUrl; // Default to type image if invalid
+      final mainOfferImgUrl = (urls[1]?.isNotEmpty ?? false) ? urls[1]! : null;
+
       final corners = (data['corners'] as List?)
               ?.whereType<GeoPoint>()
               .map((point) => {
@@ -219,10 +244,23 @@ class ClubDataHelper with ChangeNotifier {
 
   Future<String> _fetchStorageUrl(String path,
       {required String fallback}) async {
+    // Check if the URL is already in the cache
+    if (_urlCache.containsKey(path)) {
+      print('Cache hit for $path');
+      return _urlCache[path]!;
+    }
+
+    // If not in cache, fetch it from Firebase Storage
     try {
-      return await _storageRef.child(path).getDownloadURL();
+      final url = await _storageRef.child(path).getDownloadURL();
+      _urlCache[path] = url; // Store the fetched URL in the cache
+      print('Cache miss for $path');
+
+      return url;
     } catch (e) {
-      print('Error fetching Logo for $path. Showing typeOfClubLogo.');
+      _urlCache[path] = fallback; // Store the fallback in cache for this path
+      print('Error fetching Logo for $path. Showing fallback URL.');
+
       return fallback;
     }
   }
